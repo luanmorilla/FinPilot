@@ -622,20 +622,24 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
               </div>
 
               {/* Botão fixo */}
-              <div className="shrink-0 px-5 pt-3 pb-10"
-                style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(15,15,26,0.98)" }}>
-                <p className="text-center text-[10px] text-zinc-600 mb-3">🔒 Seus dados são 100% seguros</p>
-                <motion.button whileTap={{ scale: 0.97 }}
-                  onClick={handleSubmit}
-                  disabled={isLoading || !isFormValid}
-                  className="w-full py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2 transition-all disabled:opacity-40"
-                  style={{
-                    background: isFormValid && !isLoading ? "linear-gradient(135deg, #a855f7, #7c3aed)" : "rgba(255,255,255,0.08)",
-                    boxShadow: isFormValid && !isLoading ? "0 6px 24px rgba(168,85,247,0.4)" : "none",
-                  }}>
-                  {isLoading ? <Loader2 size={18} className="animate-spin" /> : <><Plus size={18} strokeWidth={2.5} /> Adicionar Dívida</>}
-                </motion.button>
-              </div>
+<div className="shrink-0 px-5 pt-3"
+  style={{ 
+    borderTop: "1px solid rgba(255,255,255,0.06)", 
+    background: "rgba(15,15,26,0.98)",
+    paddingBottom: "max(40px, env(safe-area-inset-bottom, 40px))"
+  }}>
+  <p className="text-center text-[10px] text-zinc-600 mb-3">🔒 Seus dados são 100% seguros</p>
+  <motion.button whileTap={{ scale: 0.97 }}
+    onClick={handleSubmit}
+    disabled={isLoading || !isFormValid}
+    className="w-full py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2 transition-all disabled:opacity-40"
+    style={{
+      background: isFormValid && !isLoading ? "linear-gradient(135deg, #a855f7, #7c3aed)" : "rgba(255,255,255,0.08)",
+      boxShadow: isFormValid && !isLoading ? "0 6px 24px rgba(168,85,247,0.4)" : "none",
+    }}>
+    {isLoading ? <Loader2 size={18} className="animate-spin" /> : <><Plus size={18} strokeWidth={2.5} /> Adicionar Dívida</>}
+  </motion.button>
+</div>
 
             </motion.div>
           </motion.div>
