@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 
+// ─── Tipos ───────────────────────────────────────────────────────────────────
 interface Divida {
   id: string
   nome: string
@@ -24,6 +25,7 @@ interface DividasClientProps {
   salario: number
 }
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 function formatBRL(v: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v)
 }
@@ -42,18 +44,21 @@ function getDiasRestantes(data: string) {
 }
 
 function getUrgencia(dias: number) {
-  if (dias < 0) return { label: "Vencida", cor: "text-red-400", bg: "rgba(239,68,68,0.07)", border: "rgba(239,68,68,0.18)", accent: "#ef4444", dot: "bg-red-500" }
-  if (dias === 0) return { label: "Hoje!", cor: "text-orange-400", bg: "rgba(249,115,22,0.07)", border: "rgba(249,115,22,0.18)", accent: "#f97316", dot: "bg-orange-500 animate-pulse" }
-  if (dias <= 3) return { label: `${dias}d`, cor: "text-amber-400", bg: "rgba(245,158,11,0.06)", border: "rgba(245,158,11,0.15)", accent: "#f59e0b", dot: "bg-amber-400" }
-  if (dias <= 7) return { label: `${dias}d`, cor: "text-yellow-400", bg: "rgba(234,179,8,0.05)", border: "rgba(234,179,8,0.12)", accent: "#eab308", dot: "bg-yellow-400" }
-  return { label: `${dias}d`, cor: "text-zinc-400", bg: "rgba(255,255,255,0.03)", border: "rgba(255,255,255,0.07)", accent: "#71717a", dot: "bg-zinc-600" }
+  if (dias < 0)  return { label: "Vencida", cor: "text-red-400",    bg: "rgba(239,68,68,0.07)",   border: "rgba(239,68,68,0.18)",   accent: "#ef4444", dot: "bg-red-500" }
+  if (dias === 0) return { label: "Hoje!",  cor: "text-orange-400", bg: "rgba(249,115,22,0.07)",  border: "rgba(249,115,22,0.18)",  accent: "#f97316", dot: "bg-orange-500 animate-pulse" }
+  if (dias <= 3)  return { label: `${dias}d`, cor: "text-amber-400",  bg: "rgba(245,158,11,0.06)", border: "rgba(245,158,11,0.15)",  accent: "#f59e0b", dot: "bg-amber-400" }
+  if (dias <= 7)  return { label: `${dias}d`, cor: "text-yellow-400", bg: "rgba(234,179,8,0.05)",  border: "rgba(234,179,8,0.12)",   accent: "#eab308", dot: "bg-yellow-400" }
+  return           { label: `${dias}d`, cor: "text-zinc-400",   bg: "rgba(255,255,255,0.03)", border: "rgba(255,255,255,0.07)", accent: "#71717a", dot: "bg-zinc-600" }
 }
 
+// ─── Sugestões inteligentes ───────────────────────────────────────────────────
 const SUGGESTIONS: Record<string, { categoria: string; recorrente: boolean; diaVenc?: number; chip: string }> = {
   nubank:       { categoria: "Cartão",      recorrente: true,  diaVenc: 10, chip: "💳 Cartão · Vence dia 10" },
   inter:        { categoria: "Cartão",      recorrente: true,  diaVenc: 5,  chip: "💳 Cartão · Vence dia 5" },
   itau:         { categoria: "Cartão",      recorrente: true,  diaVenc: 20, chip: "💳 Cartão · Vence dia 20" },
   bradesco:     { categoria: "Cartão",      recorrente: true,  diaVenc: 15, chip: "💳 Cartão · Vence dia 15" },
+  santander:    { categoria: "Cartão",      recorrente: true,  diaVenc: 10, chip: "💳 Cartão · Vence dia 10" },
+  c6:           { categoria: "Cartão",      recorrente: true,  diaVenc: 15, chip: "💳 Cartão · Vence dia 15" },
   aluguel:      { categoria: "Moradia",     recorrente: true,  diaVenc: 5,  chip: "🏠 Moradia · Recorrente" },
   condominio:   { categoria: "Moradia",     recorrente: true,  chip: "🏠 Condomínio · Mensal" },
   agua:         { categoria: "Moradia",     recorrente: true,  chip: "💧 Conta fixa · Mensal" },
@@ -62,14 +67,21 @@ const SUGGESTIONS: Record<string, { categoria: string; recorrente: boolean; diaV
   internet:     { categoria: "Assinatura",  recorrente: true,  chip: "🌐 Assinatura · Mensal" },
   netflix:      { categoria: "Assinatura",  recorrente: true,  chip: "📺 Streaming · Mensal" },
   spotify:      { categoria: "Assinatura",  recorrente: true,  chip: "🎵 Streaming · Mensal" },
+  amazon:       { categoria: "Assinatura",  recorrente: true,  chip: "📦 Assinatura · Mensal" },
+  disney:       { categoria: "Assinatura",  recorrente: true,  chip: "📺 Streaming · Mensal" },
   academia:     { categoria: "Saúde",       recorrente: true,  chip: "💪 Saúde · Mensal" },
+  plano:        { categoria: "Saúde",       recorrente: true,  chip: "🏥 Saúde · Mensal" },
   gasolina:     { categoria: "Transporte",  recorrente: false, chip: "⛽ Transporte" },
   uber:         { categoria: "Transporte",  recorrente: false, chip: "🚗 Transporte" },
+  onibus:       { categoria: "Transporte",  recorrente: false, chip: "🚌 Transporte" },
   mercado:      { categoria: "Alimentação", recorrente: false, chip: "🛒 Alimentação" },
   supermercado: { categoria: "Alimentação", recorrente: false, chip: "🛒 Alimentação" },
+  ifood:        { categoria: "Alimentação", recorrente: false, chip: "🍔 Alimentação" },
   farmacia:     { categoria: "Saúde",       recorrente: false, chip: "💊 Saúde" },
+  remedio:      { categoria: "Saúde",       recorrente: false, chip: "💊 Saúde" },
   escola:       { categoria: "Educação",    recorrente: true,  chip: "📚 Educação · Mensal" },
   faculdade:    { categoria: "Educação",    recorrente: true,  chip: "📚 Educação · Mensal" },
+  curso:        { categoria: "Educação",    recorrente: true,  chip: "📚 Educação · Mensal" },
 }
 
 function getSugestao(nome: string) {
@@ -80,6 +92,7 @@ function getSugestao(nome: string) {
   return null
 }
 
+// ─── Categorias ───────────────────────────────────────────────────────────────
 const CATEGORIAS = [
   { label: "Cartão",      emoji: "💳" },
   { label: "Moradia",     emoji: "🏠" },
@@ -92,6 +105,7 @@ const CATEGORIAS = [
   { label: "Outros",      emoji: "📦" },
 ]
 
+// ─── Data helpers ─────────────────────────────────────────────────────────────
 function getDataRelativa(offsetDias: number) {
   const d = new Date()
   d.setDate(d.getDate() + offsetDias)
@@ -103,29 +117,36 @@ function labelDataRelativa(offsetDias: number) {
   d.setDate(d.getDate() + offsetDias)
   const dia = d.getDate()
   const mes = d.toLocaleDateString("pt-BR", { month: "short" })
-  if (offsetDias === 0) return { top: "Hoje", bot: `${dia} ${mes}` }
+  if (offsetDias === 0) return { top: "Hoje",   bot: `${dia} ${mes}` }
   if (offsetDias === 1) return { top: "Amanhã", bot: `${dia} ${mes}` }
   return { top: `${offsetDias} dias`, bot: `${dia} ${mes}` }
 }
 
+// ─── Estado inicial do formulário ─────────────────────────────────────────────
+const FORM_INITIAL = {
+  nome: "",
+  valor: "",
+  vencimento: "",
+  categoria: "Outros",
+  recorrente: false,
+}
+
+// ─── Componente principal ─────────────────────────────────────────────────────
 export default function DividasClient({ dividas: inicial, salario }: DividasClientProps) {
-  const [dividas, setDividas] = useState(inicial)
-  const [showModal, setShowModal] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [filtro, setFiltro] = useState<"todas" | "pendentes" | "pagas">("pendentes")
+  const [dividas, setDividas]               = useState<Divida[]>(inicial)
+  const [showModal, setShowModal]           = useState(false)
+  const [isLoading, setIsLoading]           = useState(false)
+  const [loadingPagar, setLoadingPagar]     = useState<string | null>(null)
+  const [loadingDeletar, setLoadingDeletar] = useState<string | null>(null)
+  const [filtro, setFiltro]                 = useState<"todas" | "pendentes" | "pagas">("pendentes")
   const [showCustomDate, setShowCustomDate] = useState(false)
   const [sugestaoAplicada, setSugestaoAplicada] = useState(false)
-
-  const [form, setForm] = useState({
-    nome: "",
-    valor: "",
-    vencimento: "",
-    categoria: "Outros",
-    recorrente: false,
-  })
+  const [erroSubmit, setErroSubmit]         = useState<string | null>(null)
+  const [form, setForm]                     = useState(FORM_INITIAL)
 
   const valorInputRef = useRef<HTMLInputElement>(null)
 
+  // ── Cálculos de resumo ──────────────────────────────────────────────────────
   const totalPendente = dividas.filter(d => !d.paga).reduce((a, d) => a + d.valor, 0)
   const totalPago     = dividas.filter(d =>  d.paga).reduce((a, d) => a + d.valor, 0)
   const qtdPendente   = dividas.filter(d => !d.paga).length
@@ -142,8 +163,10 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
   const saldoPrevisto = salario - totalComNova
   const barColor      = pctUso > 80 ? "#ef4444" : pctUso > 50 ? "#f59e0b" : "#a855f7"
 
-  const sugestao = getSugestao(form.nome)
+  const sugestao    = getSugestao(form.nome)
+  const isFormValid = form.nome.trim() && form.valor && form.vencimento
 
+  // ── Sugestão automática ─────────────────────────────────────────────────────
   function aplicarSugestao() {
     if (!sugestao) return
     setForm(p => ({
@@ -167,6 +190,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
     setSugestaoAplicada(false)
   }
 
+  // ── Formatação de valor monetário ───────────────────────────────────────────
   function formatarValor(raw: string) {
     const nums = raw.replace(/\D/g, "")
     if (!nums) return ""
@@ -174,48 +198,89 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
     return n.toLocaleString("pt-BR", { minimumFractionDigits: 2 })
   }
 
-  const handleSubmit = async () => {
-    if (!form.nome || !form.valor || !form.vencimento) return
+  // ── Fechar modal e limpar ───────────────────────────────────────────────────
+  function fecharModal() {
+    setShowModal(false)
+    setForm(FORM_INITIAL)
+    setSugestaoAplicada(false)
+    setShowCustomDate(false)
+    setErroSubmit(null)
+  }
+
+  // ── Submit ──────────────────────────────────────────────────────────────────
+  async function handleSubmit() {
+    if (!isFormValid || isLoading) return
     setIsLoading(true)
+    setErroSubmit(null)
+
     try {
       const res = await fetch("/api/dividas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nome: form.nome,
+          nome: form.nome.trim(),
           valor: parseFloat(form.valor.replace(/\./g, "").replace(",", ".")),
           vencimento: form.vencimento,
           categoria: form.categoria,
           recorrente: form.recorrente,
         }),
       })
-      if (res.ok) {
-        const nova = await res.json()
-        setDividas(prev => [...prev, nova])
-        setForm({ nome: "", valor: "", vencimento: "", categoria: "Outros", recorrente: false })
-        setSugestaoAplicada(false)
-        setShowModal(false)
+
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}))
+        throw new Error(json?.error ?? `Erro ${res.status}`)
       }
-    } catch (e) { console.error(e) }
-    finally { setIsLoading(false) }
+
+      const nova: Divida = await res.json()
+      // garante que vencimento é string ISO
+      nova.vencimento = nova.vencimento?.split("T")[0] ?? nova.vencimento
+      setDividas(prev => [...prev, nova].sort((a, b) =>
+        new Date(a.vencimento).getTime() - new Date(b.vencimento).getTime()
+      ))
+      fecharModal()
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Erro ao adicionar dívida"
+      setErroSubmit(msg)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handlePagar = async (id: string) => {
+  // ── Pagar ───────────────────────────────────────────────────────────────────
+  async function handlePagar(id: string) {
+    if (loadingPagar) return
+    setLoadingPagar(id)
     try {
-      await fetch(`/api/dividas/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paga: true }) })
+      const res = await fetch(`/api/dividas/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paga: true }),
+      })
+      if (!res.ok) throw new Error()
       setDividas(prev => prev.map(d => d.id === id ? { ...d, paga: true } : d))
-    } catch (e) { console.error(e) }
+    } catch {
+      // silencioso — pode adicionar toast futuramente
+    } finally {
+      setLoadingPagar(null)
+    }
   }
 
-  const handleDeletar = async (id: string) => {
+  // ── Deletar ─────────────────────────────────────────────────────────────────
+  async function handleDeletar(id: string) {
+    if (loadingDeletar) return
+    setLoadingDeletar(id)
     try {
-      await fetch(`/api/dividas/${id}`, { method: "DELETE" })
+      const res = await fetch(`/api/dividas/${id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
       setDividas(prev => prev.filter(d => d.id !== id))
-    } catch (e) { console.error(e) }
+    } catch {
+      // silencioso
+    } finally {
+      setLoadingDeletar(null)
+    }
   }
 
-  const isFormValid = form.nome.trim() && form.valor && form.vencimento
-
+  // ─── Render ──────────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col min-h-screen" style={{ background: "#0c0c14", paddingBottom: 100 }}>
 
@@ -238,8 +303,8 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
       {/* Resumo */}
       <div className="mx-4 grid grid-cols-2 gap-3 mb-5">
         {[
-          { label: "Pendente", value: totalPendente, count: dividas.filter(d=>!d.paga).length, rgb: "239,68,68",  hex: "#ef4444" },
-          { label: "Pago",     value: totalPago,     count: dividas.filter(d=> d.paga).length, rgb: "34,197,94",  hex: "#22c55e" },
+          { label: "Pendente", value: totalPendente, count: dividas.filter(d => !d.paga).length, rgb: "239,68,68",  hex: "#ef4444" },
+          { label: "Pago",     value: totalPago,     count: dividas.filter(d =>  d.paga).length, rgb: "34,197,94",  hex: "#22c55e" },
         ].map(c => (
           <div key={c.label} className="rounded-2xl p-4 relative overflow-hidden"
             style={{ background: `rgba(${c.rgb},0.07)`, border: `1px solid rgba(${c.rgb},0.15)` }}>
@@ -253,7 +318,8 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
       </div>
 
       {/* Filtros */}
-      <div className="mx-4 flex gap-1.5 mb-5 p-1 rounded-2xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
+      <div className="mx-4 flex gap-1.5 mb-5 p-1 rounded-2xl"
+        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}>
         {(["todas", "pendentes", "pagas"] as const).map(f => (
           <button key={f} onClick={() => setFiltro(f)}
             className="flex-1 py-2 rounded-xl text-xs font-semibold transition-all capitalize"
@@ -277,9 +343,11 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
               <p className="text-zinc-600 text-xs mt-1">Toque em + para adicionar</p>
             </motion.div>
           ) : dividasFiltradas.map((d, i) => {
-            const dias = getDiasRestantes(d.vencimento)
-            const urg  = getUrgencia(dias)
-            const catEmoji = CATEGORIAS.find(c => c.label === d.categoria)?.emoji ?? "📦"
+            const dias      = getDiasRestantes(d.vencimento)
+            const urg       = getUrgencia(dias)
+            const catEmoji  = CATEGORIAS.find(c => c.label === d.categoria)?.emoji ?? "📦"
+            const isPagando = loadingPagar === d.id
+            const isDeletando = loadingDeletar === d.id
             return (
               <motion.div key={d.id}
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
@@ -303,7 +371,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                           <span className="text-[10px] text-zinc-600">{d.categoria}</span>
                           <span className="text-[10px] text-zinc-700">·</span>
                           <span className="text-[10px] text-zinc-500">
-                            {new Date(d.vencimento).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                            {new Date(d.vencimento + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
                           </span>
                         </div>
                       </div>
@@ -316,15 +384,15 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                     </div>
                     {!d.paga && (
                       <div className="flex gap-2 mt-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-                        <button onClick={() => handlePagar(d.id)}
-                          className="flex-1 py-2 rounded-xl text-xs font-bold text-emerald-400 flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+                        <button onClick={() => handlePagar(d.id)} disabled={isPagando}
+                          className="flex-1 py-2 rounded-xl text-xs font-bold text-emerald-400 flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
                           style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)" }}>
-                          <CheckCircle2 size={12} /> Marcar como pago
+                          {isPagando ? <Loader2 size={12} className="animate-spin" /> : <><CheckCircle2 size={12} /> Marcar como pago</>}
                         </button>
-                        <button onClick={() => handleDeletar(d.id)}
-                          className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition-all"
+                        <button onClick={() => handleDeletar(d.id)} disabled={isDeletando}
+                          className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95 transition-all disabled:opacity-50"
                           style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
-                          <Trash2 size={13} className="text-red-400" />
+                          {isDeletando ? <Loader2 size={13} className="animate-spin text-red-400" /> : <Trash2 size={13} className="text-red-400" />}
                         </button>
                       </div>
                     )}
@@ -340,7 +408,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
       <motion.button whileTap={{ scale: 0.92 }} onClick={() => setShowModal(true)}
         className="fixed right-5 w-14 h-14 rounded-2xl flex items-center justify-center z-40"
         style={{
-          bottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)",
+          bottom: "calc(80px + env(safe-area-inset-bottom, 0px))",
           background: "linear-gradient(135deg, #a855f7, #7c3aed)",
           boxShadow: "0 8px 32px rgba(168,85,247,0.45)",
         }}>
@@ -350,10 +418,11 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
       {/* MODAL */}
       <AnimatePresence>
         {showModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-x-0 top-0 z-50 flex items-end"
             style={{ bottom: 80, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)" }}
-            onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}>
+            onClick={e => { if (e.target === e.currentTarget) fecharModal() }}>
 
             <motion.div
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
@@ -367,7 +436,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                 maxHeight: "calc(100dvh - 80px)",
               }}>
 
-              {/* handle */}
+              {/* Handle */}
               <div className="flex justify-center pt-3 pb-1 shrink-0">
                 <div className="w-10 h-1 rounded-full bg-zinc-700" />
               </div>
@@ -379,7 +448,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                     <h2 className="text-xl font-bold text-white tracking-tight">Nova Dívida</h2>
                     <p className="text-xs text-zinc-500 mt-0.5">Vamos registrar para você ter controle total.</p>
                   </div>
-                  <button onClick={() => setShowModal(false)}
+                  <button onClick={fecharModal}
                     className="w-9 h-9 rounded-xl flex items-center justify-center active:scale-95"
                     style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
                     <X size={16} className="text-zinc-400" />
@@ -401,10 +470,10 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                 </div>
               </div>
 
-              {/* Scroll — flex-1 garante que o botão sempre fica visível */}
+              {/* Scroll area */}
               <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6" style={{ overscrollBehavior: "contain" }}>
 
-                {/* 1 Nome */}
+                {/* 1 — Nome */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
@@ -421,7 +490,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                       style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(168,85,247,0.25)" }}
                     />
                     {form.nome && (
-                      <button onClick={() => { setForm(p=>({...p,nome:""})); setSugestaoAplicada(false) }}
+                      <button onClick={() => { setForm(p => ({ ...p, nome: "" })); setSugestaoAplicada(false) }}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500">
                         <X size={13} />
                       </button>
@@ -447,7 +516,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                   </AnimatePresence>
                 </div>
 
-                {/* 2 Valor */}
+                {/* 2 — Valor */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
@@ -483,8 +552,9 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                   </div>
                 </div>
 
-                {/* 3+4 Vencimento + Categoria */}
+                {/* 3+4 — Vencimento + Categoria */}
                 <div className="grid grid-cols-2 gap-4">
+                  {/* Vencimento */}
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
@@ -498,7 +568,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                         const sel = form.vencimento === val && !showCustomDate
                         return (
                           <button key={offset}
-                            onClick={() => { setForm(p=>({...p, vencimento: val})); setShowCustomDate(false) }}
+                            onClick={() => { setForm(p => ({ ...p, vencimento: val })); setShowCustomDate(false) }}
                             className="w-full py-2.5 px-3 rounded-xl flex flex-col items-start active:scale-95 transition-all"
                             style={sel
                               ? { background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.4)" }
@@ -530,6 +600,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                     </div>
                   </div>
 
+                  {/* Categoria */}
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
@@ -540,7 +611,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                       {CATEGORIAS.map(c => {
                         const sel = form.categoria === c.label
                         return (
-                          <button key={c.label} onClick={() => setForm(p=>({...p, categoria: c.label}))}
+                          <button key={c.label} onClick={() => setForm(p => ({ ...p, categoria: c.label }))}
                             className="py-2.5 rounded-xl flex flex-col items-center gap-1 active:scale-95 transition-all"
                             style={sel
                               ? { background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.4)" }
@@ -554,7 +625,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                   </div>
                 </div>
 
-                {/* 5 Recorrência */}
+                {/* 5 — Recorrência */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
@@ -569,7 +640,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                     ].map(opt => {
                       const sel = form.recorrente === opt.val
                       return (
-                        <button key={opt.label} onClick={() => setForm(p=>({...p, recorrente: opt.val}))}
+                        <button key={opt.label} onClick={() => setForm(p => ({ ...p, recorrente: opt.val }))}
                           className="py-3 rounded-xl flex flex-col items-center gap-1 active:scale-95 transition-all"
                           style={sel
                             ? { background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.4)" }
@@ -582,7 +653,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                   </div>
                 </div>
 
-                {/* Impacto */}
+                {/* Impacto no orçamento */}
                 {salario > 0 && valorNum > 0 && (
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                     className="rounded-2xl p-4"
@@ -622,19 +693,27 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                   </motion.div>
                 )}
 
-                {/* Espaço extra no fim do scroll para o botão não tapar conteúdo */}
                 <div className="h-2" />
               </div>
 
-              {/* Botão fixo — sempre visível, respeita safe area do celular */}
-              <div
-                className="shrink-0 px-5 pt-4 pb-6"
-                style={{
-                  borderTop: "1px solid rgba(255,255,255,0.06)",
-                  background: "rgba(15,15,26,0.98)",
-                }}
-              >
+              {/* Botão fixo — sempre visível acima da nav */}
+              <div className="shrink-0 px-5 pt-4 pb-6"
+                style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(15,15,26,0.98)" }}>
+
+                {/* Erro de submit */}
+                <AnimatePresence>
+                  {erroSubmit && (
+                    <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                      className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl"
+                      style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)" }}>
+                      <AlertCircle size={13} className="text-red-400 shrink-0" />
+                      <p className="text-xs text-red-400">{erroSubmit}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <p className="text-center text-[10px] text-zinc-600 mb-3">🔒 Seus dados são 100% seguros</p>
+
                 <motion.button whileTap={{ scale: 0.97 }}
                   onClick={handleSubmit}
                   disabled={isLoading || !isFormValid}
@@ -643,7 +722,9 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                     background: isFormValid && !isLoading ? "linear-gradient(135deg, #a855f7, #7c3aed)" : "rgba(255,255,255,0.08)",
                     boxShadow: isFormValid && !isLoading ? "0 6px 24px rgba(168,85,247,0.4)" : "none",
                   }}>
-                  {isLoading ? <Loader2 size={18} className="animate-spin" /> : <><Plus size={18} strokeWidth={2.5} /> Adicionar Dívida</>}
+                  {isLoading
+                    ? <Loader2 size={18} className="animate-spin" />
+                    : <><Plus size={18} strokeWidth={2.5} /> Adicionar Dívida</>}
                 </motion.button>
               </div>
 
