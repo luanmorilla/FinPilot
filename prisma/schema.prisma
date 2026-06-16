@@ -1,7 +1,3 @@
-// prisma/schema.prisma
-// Banco de dados do FINPILOT
-// Gerenciado pelo Prisma ORM + Neon PostgreSQL
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,9 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─────────────────────────────────────────
-// USUÁRIO
-// ─────────────────────────────────────────
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -24,10 +17,8 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  // Perfil financeiro
   perfil        PerfilFinanceiro?
 
-  // Relacionamentos
   accounts      Account[]
   sessions      Session[]
   dividas       Divida[]
@@ -41,9 +32,6 @@ model User {
   @@map("users")
 }
 
-// ─────────────────────────────────────────
-// AUTH.JS — OBRIGATÓRIO
-// ─────────────────────────────────────────
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -84,67 +72,58 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-// ─────────────────────────────────────────
-// PERFIL FINANCEIRO (ONBOARDING)
-// ─────────────────────────────────────────
 model PerfilFinanceiro {
-  id                  String            @id @default(cuid())
-  userId              String            @unique
-  salario             Float
-  frequenciaPagamento FrequenciaPagamento
-  diasPagamento       Int[]             // ex: [5, 20] para quinzenal
-  diaFixo             Int?              // ex: 5 para mensal
-  onboardingCompleto  Boolean           @default(false)
-  nivelFinanceiro     NivelFinanceiro   @default(BRONZE)
-  pontos              Int               @default(0)
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  id                    String                @id @default(cuid())
+  userId                String                @unique
+  salario               Float
+  frequenciaPagamento   FrequenciaPagamento
+  diasPagamento         Int[]
+  diaFixo               Int?
+  onboardingCompleto    Boolean               @default(false)
+  nivelFinanceiro       NivelFinanceiro       @default(BRONZE)
+  pontos                Int                   @default(0)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("perfis_financeiros")
 }
 
-// ─────────────────────────────────────────
-// DÍVIDAS
-// ─────────────────────────────────────────
 model Divida {
-  id          String        @id @default(cuid())
+  id          String          @id @default(cuid())
   userId      String
   nome        String
   valor       Float
   vencimento  DateTime
-  recorrente  Boolean       @default(false)
-  paga        Boolean       @default(false)
+  recorrente  Boolean         @default(false)
+  paga        Boolean         @default(false)
   categoria   CategoriaDivida
-  prioridade  Prioridade    @default(MEDIA)
+  prioridade  Prioridade      @default(MEDIA)
   observacao  String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("dividas")
 }
 
-// ─────────────────────────────────────────
-// METAS
-// ─────────────────────────────────────────
 model Meta {
-  id            String     @id @default(cuid())
-  userId        String
-  nome          String
-  descricao     String?
-  valorTotal    Float
-  valorAtual    Float      @default(0)
-  prazo         DateTime?
-  emoji         String?    @default("🎯")
-  concluida     Boolean    @default(false)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id          String           @id @default(cuid())
+  userId      String
+  nome        String
+  descricao   String?
+  valorTotal  Float
+  valorAtual  Float            @default(0)
+  prazo       DateTime?
+  emoji       String?          @default("🎯")
+  concluida   Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
-  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  depositos     DepositoMeta[]
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  depositos   DepositoMeta[]
 
   @@map("metas")
 }
@@ -160,19 +139,16 @@ model DepositoMeta {
   @@map("depositos_meta")
 }
 
-// ─────────────────────────────────────────
-// COFRINHO
-// ─────────────────────────────────────────
 model Cofrinho {
-  id          String     @id @default(cuid())
+  id          String               @id @default(cuid())
   userId      String
-  nome        String     @default("Meu Cofrinho")
-  valorAtual  Float      @default(0)
+  nome        String               @default("Meu Cofrinho")
+  valorAtual  Float                @default(0)
   valorMeta   Float?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   depositos   DepositoCofrinho[]
 
   @@map("cofrinhos")
@@ -190,9 +166,6 @@ model DepositoCofrinho {
   @@map("depositos_cofrinho")
 }
 
-// ─────────────────────────────────────────
-// TRANSAÇÕES
-// ─────────────────────────────────────────
 model Transacao {
   id          String          @id @default(cuid())
   userId      String
@@ -209,9 +182,6 @@ model Transacao {
   @@map("transacoes")
 }
 
-// ─────────────────────────────────────────
-// ALERTAS
-// ─────────────────────────────────────────
 model Alerta {
   id        String      @id @default(cuid())
   userId    String
@@ -226,41 +196,32 @@ model Alerta {
   @@map("alertas")
 }
 
-// ─────────────────────────────────────────
-// NOTIFICAÇÕES PUSH
-// ─────────────────────────────────────────
 model Notificacao {
-  id          String   @id @default(cuid())
-  userId      String
-  endpoint    String   @unique
-  p256dh      String
-  auth        String
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notificacoes")
 }
 
-// ─────────────────────────────────────────
-// GAMIFICAÇÃO
-// ─────────────────────────────────────────
 model Conquista {
-  id          String   @id @default(cuid())
-  userId      String
-  titulo      String
-  descricao   String
-  emoji       String
-  conquistadaEm DateTime @default(now())
+  id             String   @id @default(cuid())
+  userId         String
+  titulo         String
+  descricao      String
+  emoji          String
+  conquistadaEm  DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("conquistas")
 }
 
-// ─────────────────────────────────────────
-// ENUMS
-// ─────────────────────────────────────────
 enum FrequenciaPagamento {
   MENSAL
   QUINZENAL
