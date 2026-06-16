@@ -7,13 +7,19 @@ export default async function DividasPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const dividas = await prisma.divida.findMany({
-    where: { userId: session.user.id },
-    orderBy: { vencimento: "asc" },
-  });
+  const [dividas, perfil] = await Promise.all([
+    prisma.divida.findMany({
+      where: { userId: session.user.id },
+      orderBy: { vencimento: "asc" },
+    }),
+    prisma.perfilFinanceiro.findUnique({
+      where: { userId: session.user.id },
+    }),
+  ]);
 
   return (
     <DividasClient
+      salario={perfil?.salario ?? 0}
       dividas={dividas.map((d) => ({
         id: d.id,
         nome: d.nome,
