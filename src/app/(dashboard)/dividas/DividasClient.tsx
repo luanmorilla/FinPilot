@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useRef } from "react"
@@ -339,8 +338,12 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
 
       {/* FAB */}
       <motion.button whileTap={{ scale: 0.92 }} onClick={() => setShowModal(true)}
-        className="fixed bottom-24 right-5 w-14 h-14 rounded-2xl flex items-center justify-center z-40"
-        style={{ background: "linear-gradient(135deg, #a855f7, #7c3aed)", boxShadow: "0 8px 32px rgba(168,85,247,0.45)" }}>
+        className="fixed right-5 w-14 h-14 rounded-2xl flex items-center justify-center z-40"
+        style={{
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)",
+          background: "linear-gradient(135deg, #a855f7, #7c3aed)",
+          boxShadow: "0 8px 32px rgba(168,85,247,0.45)",
+        }}>
         <Plus size={22} className="text-white" strokeWidth={2.5} />
       </motion.button>
 
@@ -361,7 +364,8 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                 border: "1px solid rgba(168,85,247,0.15)",
                 borderBottom: "none",
                 borderRadius: "24px 24px 0 0",
-                height: "92dvh",
+                // 88dvh deixa respiro acima do modal, sem encostar na bottom nav
+                maxHeight: "88dvh",
               }}>
 
               {/* handle */}
@@ -619,15 +623,19 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                   </motion.div>
                 )}
 
-                <div className="h-4" />
+                {/* Espaço extra no fim do scroll para o botão não tapar conteúdo */}
+                <div className="h-2" />
               </div>
 
-              {/* Botão fixo — sempre visível no fundo */}
-              <div className="shrink-0 px-5 pt-4 pb-8"
+              {/* Botão fixo — sempre visível, respeita safe area do celular */}
+              <div
+                className="shrink-0 px-5 pt-4"
                 style={{
                   borderTop: "1px solid rgba(255,255,255,0.06)",
                   background: "rgba(15,15,26,0.98)",
-                }}>
+                  paddingBottom: "max(24px, env(safe-area-inset-bottom, 24px) + 12px)",
+                }}
+              >
                 <p className="text-center text-[10px] text-zinc-600 mb-3">🔒 Seus dados são 100% seguros</p>
                 <motion.button whileTap={{ scale: 0.97 }}
                   onClick={handleSubmit}
