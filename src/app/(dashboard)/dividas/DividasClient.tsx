@@ -351,8 +351,8 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
       <AnimatePresence>
         {showModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end"
-            style={{ background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)" }}
+            className="fixed inset-x-0 top-0 z-50 flex items-end"
+            style={{ bottom: 80, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)" }}
             onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}>
 
             <motion.div
@@ -364,8 +364,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                 border: "1px solid rgba(168,85,247,0.15)",
                 borderBottom: "none",
                 borderRadius: "24px 24px 0 0",
-                // 88dvh deixa respiro acima do modal, sem encostar na bottom nav
-                maxHeight: "88dvh",
+                maxHeight: "calc(100dvh - 80px)",
               }}>
 
               {/* handle */}
@@ -629,11 +628,10 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
 
               {/* Botão fixo — sempre visível, respeita safe area do celular */}
               <div
-                className="shrink-0 px-5 pt-4"
+                className="shrink-0 px-5 pt-4 pb-6"
                 style={{
                   borderTop: "1px solid rgba(255,255,255,0.06)",
                   background: "rgba(15,15,26,0.98)",
-                  paddingBottom: "max(24px, env(safe-area-inset-bottom, 24px) + 12px)",
                 }}
               >
                 <p className="text-center text-[10px] text-zinc-600 mb-3">🔒 Seus dados são 100% seguros</p>
