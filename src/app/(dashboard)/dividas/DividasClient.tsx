@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useRef } from "react"
@@ -343,7 +344,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
         <Plus size={22} className="text-white" strokeWidth={2.5} />
       </motion.button>
 
-      {/* ══ MODAL ══ */}
+      {/* MODAL */}
       <AnimatePresence>
         {showModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -360,7 +361,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                 border: "1px solid rgba(168,85,247,0.15)",
                 borderBottom: "none",
                 borderRadius: "24px 24px 0 0",
-                maxHeight: "calc(100vh - 80px)",
+                height: "92dvh",
               }}>
 
               {/* handle */}
@@ -397,7 +398,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                 </div>
               </div>
 
-              {/* Scroll */}
+              {/* Scroll — flex-1 garante que o botão sempre fica visível */}
               <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6" style={{ overscrollBehavior: "contain" }}>
 
                 {/* 1 Nome */}
@@ -618,28 +619,27 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                   </motion.div>
                 )}
 
-                <div className="h-2" />
+                <div className="h-4" />
               </div>
 
-              {/* Botão fixo */}
-<div className="shrink-0 px-5 pt-3"
-  style={{ 
-    borderTop: "1px solid rgba(255,255,255,0.06)", 
-    background: "rgba(15,15,26,0.98)",
-    paddingBottom: "max(40px, env(safe-area-inset-bottom, 40px))"
-  }}>
-  <p className="text-center text-[10px] text-zinc-600 mb-3">🔒 Seus dados são 100% seguros</p>
-  <motion.button whileTap={{ scale: 0.97 }}
-    onClick={handleSubmit}
-    disabled={isLoading || !isFormValid}
-    className="w-full py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2 transition-all disabled:opacity-40"
-    style={{
-      background: isFormValid && !isLoading ? "linear-gradient(135deg, #a855f7, #7c3aed)" : "rgba(255,255,255,0.08)",
-      boxShadow: isFormValid && !isLoading ? "0 6px 24px rgba(168,85,247,0.4)" : "none",
-    }}>
-    {isLoading ? <Loader2 size={18} className="animate-spin" /> : <><Plus size={18} strokeWidth={2.5} /> Adicionar Dívida</>}
-  </motion.button>
-</div>
+              {/* Botão fixo — sempre visível no fundo */}
+              <div className="shrink-0 px-5 pt-4 pb-8"
+                style={{
+                  borderTop: "1px solid rgba(255,255,255,0.06)",
+                  background: "rgba(15,15,26,0.98)",
+                }}>
+                <p className="text-center text-[10px] text-zinc-600 mb-3">🔒 Seus dados são 100% seguros</p>
+                <motion.button whileTap={{ scale: 0.97 }}
+                  onClick={handleSubmit}
+                  disabled={isLoading || !isFormValid}
+                  className="w-full py-4 rounded-2xl font-bold text-white text-base flex items-center justify-center gap-2 transition-all disabled:opacity-40"
+                  style={{
+                    background: isFormValid && !isLoading ? "linear-gradient(135deg, #a855f7, #7c3aed)" : "rgba(255,255,255,0.08)",
+                    boxShadow: isFormValid && !isLoading ? "0 6px 24px rgba(168,85,247,0.4)" : "none",
+                  }}>
+                  {isLoading ? <Loader2 size={18} className="animate-spin" /> : <><Plus size={18} strokeWidth={2.5} /> Adicionar Dívida</>}
+                </motion.button>
+              </div>
 
             </motion.div>
           </motion.div>
