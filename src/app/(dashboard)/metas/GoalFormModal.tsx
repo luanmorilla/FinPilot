@@ -82,11 +82,12 @@ function DeleteConfirmModal({
     exit={{ y: 60, opacity: 0 }}
     transition={{ type: "spring", damping: 28, stiffness: 300 }}
     className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl flex flex-col"
-    style={{
-      background: "#13131a",
-      border: "1px solid rgba(255,255,255,0.1)",
-      maxHeight: "calc(100dvh - 80px)",
-    }}
+style={{
+  background: "#13131a",
+  border: "1px solid rgba(255,255,255,0.1)",
+  height: "min(calc(100dvh - 80px), 720px)",
+  maxHeight: "calc(100dvh - 80px)",
+}}
   >
         <div className="flex items-center gap-3">
           <div
@@ -300,6 +301,10 @@ export function GoalFormModal({ goal, onClose, onSuccess }: Props) {
           style={{
             background: "#13131a",
             border: "1px solid rgba(255,255,255,0.1)",
+            // height fixo (não só maxHeight) garante que o footer nunca
+            // seja empurrado para fora da tela quando o conteúdo do
+            // formulário crescer (ex: card de Inteligência Financeira).
+            height: "min(calc(100dvh - 80px), 720px)",
             maxHeight: "calc(100dvh - 80px)",
           }}
         >
