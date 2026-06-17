@@ -111,17 +111,21 @@ model Divida {
 }
 
 model Meta {
-  id          String           @id @default(cuid())
-  userId      String
-  nome        String
-  descricao   String?
-  valorTotal  Float
-  valorAtual  Float            @default(0)
-  prazo       DateTime?
-  emoji       String?          @default("🎯")
-  concluida   Boolean          @default(false)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id           String         @id @default(cuid())
+  userId       String
+  nome         String
+  descricao    String?
+  categoria    CategoriaMeta  @default(OUTROS)
+  prioridade   Prioridade     @default(MEDIA)
+  valorTotal   Float
+  valorAtual   Float          @default(0)
+  prazo        DateTime?
+  dataPrevista DateTime?
+  emoji        String?        @default("🎯")
+  status       StatusMeta     @default(ATIVA)
+  concluida    Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
   user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   depositos   DepositoMeta[]
@@ -133,6 +137,7 @@ model DepositoMeta {
   id        String   @id @default(cuid())
   metaId    String
   valor     Float
+  nota      String?
   createdAt DateTime @default(now())
 
   meta Meta @relation(fields: [metaId], references: [id], onDelete: Cascade)
@@ -272,4 +277,20 @@ enum TipoAlerta {
   RISCO
   CONQUISTA
   SISTEMA
+}
+
+enum CategoriaMeta {
+  CASA
+  CARRO
+  VIAGEM
+  RESERVA
+  EDUCACAO
+  NEGOCIO
+  OUTROS
+}
+
+enum StatusMeta {
+  ATIVA
+  CONCLUIDA
+  PAUSADA
 }
