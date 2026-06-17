@@ -37,19 +37,26 @@ function getDaysRemaining(dateStr: string | null | undefined): number | null {
 }
 
 const STATUS_ICONS = {
-  ACTIVE: null,
+  ACTIVE:    null,
   COMPLETED: CheckCircle2,
-  PAUSED: PauseCircle,
+  PAUSED:    PauseCircle,
 };
 
-export function GoalCard({ goal, index, onAddContribution, onViewDetail, onEdit }: Props) {
-  const progress = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
-  const category = CATEGORY_CONFIG[goal.category];
-  const priority = PRIORITY_CONFIG[goal.priority];
+export function GoalCard({
+  goal,
+  index,
+  onAddContribution,
+  onViewDetail,
+  onEdit,
+}: Props) {
+  const progress      = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
+  const category      = CATEGORY_CONFIG[goal.category];
+  const priority      = PRIORITY_CONFIG[goal.priority];
   const daysRemaining = getDaysRemaining(goal.targetDate);
   const predictedDate = formatDate(goal.predictedDate);
-  const StatusIcon = STATUS_ICONS[goal.status];
-  const isCompleted = goal.status === "COMPLETED";
+  const StatusIcon    = STATUS_ICONS[goal.status];
+  const isCompleted   = goal.status === "COMPLETED";
+  const isPaused      = goal.status === "PAUSED";
 
   const progressColor =
     progress >= 80
@@ -66,14 +73,23 @@ export function GoalCard({ goal, index, onAddContribution, onViewDetail, onEdit 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ delay: index * 0.05, type: "spring", stiffness: 280, damping: 26 }}
       className="relative rounded-2xl p-5 flex flex-col gap-4 overflow-hidden group"
       style={{
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.08)",
+        background: isCompleted
+          ? "rgba(34,197,94,0.04)"
+          : isPaused
+          ? "rgba(255,255,255,0.02)"
+          : "rgba(255,255,255,0.04)",
+        border: isCompleted
+          ? "1px solid rgba(34,197,94,0.2)"
+          : isPaused
+          ? "1px solid rgba(255,255,255,0.05)"
+          : "1px solid rgba(255,255,255,0.08)",
+        opacity: isPaused ? 0.75 : 1,
       }}
     >
-      {/* Glow background based on category */}
+      {/* Glow ao hover baseado na categoria */}
       <div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
         style={{
@@ -81,36 +97,44 @@ export function GoalCard({ goal, index, onAddContribution, onViewDetail, onEdit 
         }}
       />
 
-      {/* Completed overlay */}
+      {/* Animação de conclusão */}
       {isCompleted && (
-        <div className="absolute inset-0 rounded-2xl pointer-events-none"
-          style={{ border: "1px solid rgba(34,197,94,0.3)", background: "rgba(34,197,94,0.03)" }}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute inset-0 rounded-2xl pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse at top, rgba(34,197,94,0.06) 0%, transparent 70%)",
+          }}
         />
       )}
 
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-            style={{ background: `${category.color}20`, border: `1px solid ${category.color}30` }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+            style={{
+              background: `${category.color}20`,
+              border: `1px solid ${category.color}30`,
+            }}
           >
             {category.emoji}
           </div>
           <div className="min-w-0">
-            <h3 className="font-semibold text-white text-sm leading-tight truncate max-w-[160px]">
+            <h3
+              className="font-semibold text-white text-sm leading-tight truncate"
+              title={goal.name}
+            >
               {goal.name}
             </h3>
-            <span
-              className="text-xs font-medium"
-              style={{ color: category.color }}
-            >
+            <span className="text-xs font-medium" style={{ color: category.color }}>
               {category.label}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           {StatusIcon && (
             <StatusIcon
               size={14}
@@ -126,7 +150,7 @@ export function GoalCard({ goal, index, onAddContribution, onViewDetail, onEdit 
         </div>
       </div>
 
-      {/* Values */}
+      {/* Valores e barra de progresso */}
       <div>
         <div className="flex items-end justify-between mb-2">
           <div>
@@ -143,66 +167,92 @@ export function GoalCard({ goal, index, onAddContribution, onViewDetail, onEdit 
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="relative h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+        {/* Barra */}
+        <div
+          className="relative h-2 rounded-full overflow-hidden"
+          style={{ background: "rgba(255,255,255,0.08)" }}
+        >
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: index * 0.05 + 0.2 }}
+            transition={{
+              duration: 0.8,
+              ease: "easeOut",
+              delay: index * 0.05 + 0.2,
+            }}
             className="h-full rounded-full"
             style={{
               background: isCompleted
                 ? "linear-gradient(90deg, #22c55e, #4ade80)"
                 : `linear-gradient(90deg, ${progressColor}, ${progressColor}cc)`,
-              boxShadow: `0 0 8px ${progressColor}60`,
+              boxShadow: `0 0 8px ${isCompleted ? "#22c55e60" : `${progressColor}60`}`,
             }}
           />
         </div>
 
         <div className="flex justify-between mt-1.5">
-          <span className="text-xs font-bold" style={{ color: progressColor }}>
+          <span className="text-xs font-bold" style={{ color: isCompleted ? "#22c55e" : progressColor }}>
             {progress.toFixed(0)}%
           </span>
           {daysRemaining !== null && !isCompleted && (
             <span
               className={`text-xs flex items-center gap-1 ${
-                daysRemaining < 30 ? "text-red-400" : "text-white/40"
+                daysRemaining < 0
+                  ? "text-red-400"
+                  : daysRemaining < 30
+                  ? "text-amber-400"
+                  : "text-white/40"
               }`}
             >
               <Clock size={10} />
-              {daysRemaining > 0 ? `${daysRemaining}d restantes` : "Prazo vencido"}
+              {daysRemaining < 0
+                ? "Prazo vencido"
+                : daysRemaining === 0
+                ? "Vence hoje"
+                : `${daysRemaining}d restantes`}
             </span>
           )}
         </div>
       </div>
 
-      {/* Predicted Date */}
+      {/* Previsão */}
       {predictedDate && !isCompleted && (
         <div
           className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs"
-          style={{ background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.2)" }}
+          style={{
+            background: "rgba(168,85,247,0.1)",
+            border: "1px solid rgba(168,85,247,0.2)",
+          }}
         >
           <span className="text-white/50">Previsão:</span>
           <span className="text-[#a855f7] font-semibold">{predictedDate}</span>
         </div>
       )}
 
+      {/* Badge de conclusão */}
       {isCompleted && (
-        <div
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3, type: "spring", stiffness: 300 }}
           className="flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold text-[#22c55e]"
-          style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.2)" }}
+          style={{
+            background: "rgba(34,197,94,0.1)",
+            border: "1px solid rgba(34,197,94,0.2)",
+          }}
         >
           <CheckCircle2 size={14} />
           Meta concluída! 🎉
-        </div>
+        </motion.div>
       )}
 
-      {/* Actions */}
+      {/* Ações */}
       <div className="flex gap-2 pt-1">
         {!isCompleted && (
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={onAddContribution}
+            title="Adicionar aporte"
             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-white transition-all"
             style={{
               background: "linear-gradient(135deg, #a855f7, #7c3aed)",
@@ -213,19 +263,31 @@ export function GoalCard({ goal, index, onAddContribution, onViewDetail, onEdit 
             Aportar
           </motion.button>
         )}
+
         <motion.button
           whileTap={{ scale: 0.96 }}
           onClick={onViewDetail}
+          title="Ver detalhes"
+          aria-label="Ver detalhes da meta"
           className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white transition-all"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
+          style={{
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
         >
           <Eye size={13} />
         </motion.button>
+
         <motion.button
           whileTap={{ scale: 0.96 }}
           onClick={onEdit}
+          title="Editar meta"
+          aria-label="Editar meta"
           className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-white/60 hover:text-white transition-all"
-          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
+          style={{
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
         >
           <Pencil size={13} />
         </motion.button>

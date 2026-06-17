@@ -5,12 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Target,
   Plus,
-  TrendingUp,
-  Trophy,
-  Zap,
-  BarChart3,
+  AlertCircle,
 } from "lucide-react";
-import type { Goal, GoalStats } from "./types";
+import type { Goal } from "./types";
 import { GoalCard } from "./GoalCard";
 import { GoalFormModal } from "./GoalFormModal";
 import { ContributionModal } from "./ContributionModal";
@@ -23,31 +20,31 @@ import { MetasSkeleton } from "./MetasSkeleton";
 import { useMetas } from "./useMetas";
 
 const FILTER_OPTIONS = [
-  { value: "ALL", label: "Todas" },
-  { value: "ACTIVE", label: "Ativas" },
-  { value: "COMPLETED", label: "Concluídas" },
-  { value: "PAUSED", label: "Pausadas" },
-];
+  { value: "ALL",       label: "Todas"     },
+  { value: "ACTIVE",    label: "Ativas"    },
+  { value: "COMPLETED", label: "Concluídas"},
+  { value: "PAUSED",    label: "Pausadas"  },
+] as const;
+
+type FilterValue = typeof FILTER_OPTIONS[number]["value"];
 
 export default function MetasClient() {
-  const { goals, stats, isLoading, mutate } = useMetas();
-  const [filter, setFilter] = useState("ALL");
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
+  const { goals, stats, isLoading, error, mutate } = useMetas();
+
+  const [filter, setFilter]                     = useState<FilterValue>("ALL");
+  const [showCreateModal, setShowCreateModal]   = useState(false);
+  const [selectedGoal, setSelectedGoal]         = useState<Goal | null>(null);
   const [contributionGoal, setContributionGoal] = useState<Goal | null>(null);
-  const [detailGoal, setDetailGoal] = useState<Goal | null>(null);
+  const [detailGoal, setDetailGoal]             = useState<Goal | null>(null);
 
   const filteredGoals = goals.filter((g) =>
     filter === "ALL" ? true : g.status === filter
   );
 
-  const handleGoalCreated = useCallback(
-    (goal: Goal) => {
-      mutate();
-      setShowCreateModal(false);
-    },
-    [mutate]
-  );
+  const handleGoalCreated = useCallback(() => {
+    mutate();
+    setShowCreateModal(false);
+  }, [mutate]);
 
   const handleContributionAdded = useCallback(() => {
     mutate();
@@ -71,8 +68,12 @@ export default function MetasClient() {
   if (isLoading) return <MetasSkeleton />;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div
+      className="min-h-screen bg-[#0a0a0f] text-white"
+      style={{ paddingBottom: 100 }}
+    >
       <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -16 }}
@@ -88,20 +89,32 @@ export default function MetasClient() {
               Planeje seus objetivos financeiros
             </p>
           </div>
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            whileHover={{ scale: 1.02 }}
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl font-semibold text-sm text-white transition-all"
-            style={{
-              background: "linear-gradient(135deg, #a855f7, #7c3aed)",
-              boxShadow: "0 6px 24px rgba(168,85,247,0.35)",
-            }}
-          >
-            <Plus size={16} strokeWidth={2.5} />
-            Nova Meta
-          </motion.button>
         </motion.div>
+
+        {/* Erro de rede */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl"
+              style={{
+                background: "rgba(239,68,68,0.08)",
+                border: "1px solid rgba(239,68,68,0.2)",
+              }}
+            >
+              <AlertCircle size={15} className="text-red-400 shrink-0" />
+              <p className="text-sm text-red-400">{error}</p>
+              <button
+                onClick={mutate}
+                className="ml-auto text-xs font-semibold text-red-400 underline underline-offset-2"
+              >
+                Tentar novamente
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Stats Cards */}
         {goals.length > 0 && <MetasStats stats={stats} />}
@@ -115,24 +128,25 @@ export default function MetasClient() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
-            className="flex gap-2 overflow-x-auto pb-1"
+            className="flex gap-2 overflow-x-auto pb-1 scrollbar-none"
           >
             {FILTER_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => setFilter(opt.value)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                  filter === opt.value
-                    ? "text-white"
-                    : "text-white/50 hover:text-white/80"
-                }`}
+                className="px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all"
                 style={
                   filter === opt.value
                     ? {
                         background: "rgba(168,85,247,0.2)",
                         border: "1px solid rgba(168,85,247,0.4)",
+                        color: "#fff",
                       }
-                    : { background: "rgba(255,255,255,0.04)", border: "1px solid transparent" }
+                    : {
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid transparent",
+                        color: "rgba(255,255,255,0.5)",
+                      }
                 }
               >
                 {opt.label}
@@ -174,9 +188,23 @@ export default function MetasClient() {
           </motion.div>
         )}
 
-        {/* Charts - only show when there are goals */}
+        {/* Charts */}
         {goals.length > 1 && <MetasCharts goals={goals} />}
       </div>
+
+      {/* FAB */}
+      <motion.button
+        whileTap={{ scale: 0.92 }}
+        onClick={() => setShowCreateModal(true)}
+        className="fixed right-5 w-14 h-14 rounded-2xl flex items-center justify-center z-40"
+        style={{
+          bottom: "calc(80px + env(safe-area-inset-bottom, 0px))",
+          background: "linear-gradient(135deg, #a855f7, #7c3aed)",
+          boxShadow: "0 8px 32px rgba(168,85,247,0.45)",
+        }}
+      >
+        <Plus size={22} className="text-white" strokeWidth={2.5} />
+      </motion.button>
 
       {/* Modals */}
       <AnimatePresence>
