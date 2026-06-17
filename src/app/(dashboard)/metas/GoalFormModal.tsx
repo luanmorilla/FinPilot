@@ -66,23 +66,28 @@ function DeleteConfirmModal({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60] flex items-center justify-center px-6"
-      style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)" }}
-    >
-      <motion.div
-        initial={{ scale: 0.92, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.92, opacity: 0 }}
-        transition={{ type: "spring", damping: 28, stiffness: 320 }}
-        className="w-full max-w-sm rounded-3xl p-6 space-y-5"
-        style={{
-          background: "#13131a",
-          border: "1px solid rgba(239,68,68,0.25)",
-        }}
-      >
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  className="fixed inset-x-0 top-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+  style={{
+    bottom: 80,
+    background: "rgba(0,0,0,0.7)",
+    backdropFilter: "blur(8px)",
+  }}
+  onClick={(e) => e.target === e.currentTarget && onCancel()}>
+  <motion.div
+    initial={{ y: 60, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    exit={{ y: 60, opacity: 0 }}
+    transition={{ type: "spring", damping: 28, stiffness: 300 }}
+    className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl flex flex-col"
+    style={{
+      background: "#13131a",
+      border: "1px solid rgba(255,255,255,0.1)",
+      maxHeight: "calc(100dvh - 80px)",
+    }}
+  >
         <div className="flex items-center gap-3">
           <div
             className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
