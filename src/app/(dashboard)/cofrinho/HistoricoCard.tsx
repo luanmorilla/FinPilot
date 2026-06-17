@@ -16,7 +16,7 @@ function formatCurrency(v: number) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-  }).format(v);
+  }).format(Math.abs(v));
 }
 
 function formatDate(iso: string) {
@@ -68,41 +68,53 @@ export function HistoricoCard({ depositos }: Props) {
       {/* Lista */}
       <div className="space-y-2">
         <AnimatePresence initial={false}>
-          {shown.map((d, i) => (
-            <motion.div
-              key={d.id}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04 }}
-              className="flex items-center justify-between px-3 py-2.5 rounded-2xl"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.06)",
-              }}
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div
-                  className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 text-xs"
-                  style={{ background: "rgba(168,85,247,0.15)" }}
-                >
-                  🐷
-                </div>
-                <div className="min-w-0">
-                  <p className="text-white text-xs font-semibold">
-                    {formatDate(d.createdAt)}
-                  </p>
-                  {d.descricao && (
-                    <p className="text-white/35 text-[10px] truncate">
-                      {d.descricao}
+          {shown.map((d, i) => {
+            const isRetirada = d.valor < 0;
+            return (
+              <motion.div
+                key={d.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.04 }}
+                className="flex items-center justify-between px-3 py-2.5 rounded-2xl"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div
+                    className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 text-xs"
+                    style={{
+                      background: isRetirada
+                        ? "rgba(239,68,68,0.15)"
+                        : "rgba(168,85,247,0.15)",
+                    }}
+                  >
+                    {isRetirada ? "💸" : "🐷"}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white text-xs font-semibold">
+                      {formatDate(d.createdAt)}
                     </p>
-                  )}
+                    {d.descricao && (
+                      <p className="text-white/35 text-[10px] truncate">
+                        {d.descricao}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <span className="text-green-400 font-bold text-sm flex-shrink-0 ml-2">
-                +{formatCurrency(d.valor)}
-              </span>
-            </motion.div>
-          ))}
+                <span
+                  className={`font-bold text-sm flex-shrink-0 ml-2 ${
+                    isRetirada ? "text-red-400" : "text-green-400"
+                  }`}
+                >
+                  {isRetirada ? "−" : "+"}
+                  {formatCurrency(d.valor)}
+                </span>
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
       </div>
 

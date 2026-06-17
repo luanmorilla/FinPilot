@@ -1,9 +1,9 @@
 "use client";
 // src/app/(dashboard)/cofrinho/CofrinhoClient.tsx
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RefreshCw, AlertCircle, Plus, Target } from "lucide-react";
+import { RefreshCw, AlertCircle, Plus } from "lucide-react";
 import { useCofrinho } from "./useCofrinho";
 import { PiggyHero } from "./PiggyHero";
 import { MissaoCard } from "./MissaoCard";
@@ -13,10 +13,12 @@ import { PrevisaoCard } from "./PrevisaoCard";
 import { HistoricoCard } from "./HistoricoCard";
 import { FinnCofrinhoInsights } from "./FinnCofrinhoInsights";
 
-function jaDepositouHoje(depositos: { createdAt: string }[]): boolean {
-  if (depositos.length === 0) return false;
+function jaDepositouHoje(depositos: { createdAt: string; valor: number }[]): boolean {
+  // considera só depósitos positivos (retiradas não contam como "missão cumprida")
+  const positivos = depositos.filter((d) => d.valor > 0);
+  if (positivos.length === 0) return false;
   const hoje = new Date().toISOString().slice(0, 10);
-  return depositos[0].createdAt.slice(0, 10) === hoje;
+  return positivos[0].createdAt.slice(0, 10) === hoje;
 }
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
@@ -94,10 +96,20 @@ function EmptyCofrinho({ onStart }: { onStart: () => void }) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export function CofrinhoClient() {
-  const { data, isLoading, error, isDepositing, depositSuccess, depositar, refetch } =
-    useCofrinho();
+  const {
+    data,
+    isLoading,
+    error,
+    isDepositing,
+    depositSuccess,
+    isWithdrawing,
+    depositar,
+    retirar,
+    refetch,
+  } = useCofrinho();
 
   const [celebrating, setCelebrating] = useState(false);
+  const missaoCardRef = useRef<HTMLDivElement>(null);
 
   // Disparar celebração ao depositar com sucesso
   useEffect(() => {
@@ -110,6 +122,10 @@ export function CofrinhoClient() {
 
   const handleDepositar = async (valor: number, descricao?: string) => {
     return depositar(valor, descricao);
+  };
+
+  const handleGuardarMaisClick = () => {
+    missaoCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   if (isLoading) {
@@ -157,6 +173,7 @@ export function CofrinhoClient() {
   const primeiroUso = !data?.cofrinho || data.cofrinho.depositos.length === 0;
   const depositos = data?.cofrinho?.depositos ?? [];
   const depositouHoje = jaDepositouHoje(depositos);
+  const totalGuardado = data?.cofrinho?.valorAtual ?? 0;
 
   return (
     <div
@@ -179,8 +196,11 @@ export function CofrinhoClient() {
         {/* Hero do porquinho */}
         {data && (
           <PiggyHero
-            totalGuardado={data.cofrinho?.valorAtual ?? 0}
+            totalGuardado={totalGuardado}
             celebrating={celebrating}
+            onAddClick={!primeiroUso ? handleGuardarMaisClick : undefined}
+            onRetirar={!primeiroUso ? retirar : undefined}
+            isWithdrawing={isWithdrawing}
           />
         )}
 
@@ -197,13 +217,15 @@ export function CofrinhoClient() {
         {data && !primeiroUso && (
           <>
             {/* Missão do dia */}
-            <MissaoCard
-              missao={data.missao}
-              onDepositar={handleDepositar}
-              isDepositing={isDepositing}
-              depositSuccess={depositSuccess}
-              jaDepositouHoje={depositouHoje}
-            />
+            <div ref={missaoCardRef}>
+              <MissaoCard
+                missao={data.missao}
+                onDepositar={handleDepositar}
+                isDepositing={isDepositing}
+                depositSuccess={depositSuccess}
+                jaDepositouHoje={depositouHoje}
+              />
+            </div>
 
             {/* Insights do Finn */}
             <FinnCofrinhoInsights data={data} />
@@ -217,7 +239,7 @@ export function CofrinhoClient() {
             {/* Previsão */}
             <PrevisaoCard
               previsoes={data.previsoes}
-              valorAtual={data.cofrinho?.valorAtual ?? 0}
+              valorAtual={totalGuardado}
             />
 
             {/* Histórico */}

@@ -31,6 +31,9 @@ export function MissaoCard({
   const [valorCustom, setValorCustom] = useState("");
   const [showCustom, setShowCustom] = useState(false);
   const [localSuccess, setLocalSuccess] = useState(false);
+  // Permite reabrir as ações mesmo já tendo cumprido a missão hoje,
+  // pra deixar claro que dá pra guardar mais quando quiser.
+  const [quiserGuardarMais, setQuiserGuardarMais] = useState(false);
 
   const handleDepositar = async (valor?: number) => {
     const v = valor ?? parseFloat(valorCustom.replace(",", "."));
@@ -40,10 +43,11 @@ export function MissaoCard({
       setLocalSuccess(true);
       setShowCustom(false);
       setValorCustom("");
+      setQuiserGuardarMais(false);
     }
   };
 
-  const success = depositSuccess || localSuccess || jaDepositouHoje;
+  const success = (depositSuccess || localSuccess || jaDepositouHoje) && !quiserGuardarMais;
 
   return (
     <motion.div
@@ -154,18 +158,28 @@ export function MissaoCard({
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="flex items-center justify-center gap-2 py-3.5 rounded-2xl relative z-10"
-            style={{
-              background: "rgba(34,197,94,0.12)",
-              border: "1px solid rgba(34,197,94,0.25)",
-            }}
+            className="space-y-2 relative z-10"
           >
-            <CheckCircle2 size={18} className="text-green-400" />
-            <span className="text-green-400 font-semibold text-sm">
-              {jaDepositouHoje && !localSuccess
-                ? "Missão cumprida hoje! 🎉"
-                : "Registrado com sucesso! 🎉"}
-            </span>
+            <div
+              className="flex items-center justify-center gap-2 py-3.5 rounded-2xl"
+              style={{
+                background: "rgba(34,197,94,0.12)",
+                border: "1px solid rgba(34,197,94,0.25)",
+              }}
+            >
+              <CheckCircle2 size={18} className="text-green-400" />
+              <span className="text-green-400 font-semibold text-sm">
+                {jaDepositouHoje && !localSuccess
+                  ? "Missão cumprida hoje! 🎉"
+                  : "Registrado com sucesso! 🎉"}
+              </span>
+            </div>
+            <button
+              onClick={() => setQuiserGuardarMais(true)}
+              className="w-full py-2 text-xs text-white/40 hover:text-white/70 transition-colors"
+            >
+              Quero guardar mais hoje
+            </button>
           </motion.div>
         ) : (
           <motion.div key="actions" className="space-y-2 relative z-10">
@@ -234,6 +248,15 @@ export function MissaoCard({
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {quiserGuardarMais && (
+              <button
+                onClick={() => setQuiserGuardarMais(false)}
+                className="w-full py-1.5 text-[11px] text-white/30 hover:text-white/60 transition-colors"
+              >
+                Voltar
+              </button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
