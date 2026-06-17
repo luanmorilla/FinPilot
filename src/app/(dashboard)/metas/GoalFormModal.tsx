@@ -54,7 +54,7 @@ function formatCurrency(v: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
 }
 
-// ── Modal de confirmação de delete ───────────────────────────────────────────
+// ── Modal de confirmação de delete ──────────────────────────────────────────
 function DeleteConfirmModal({
   onConfirm,
   onCancel,
@@ -138,7 +138,7 @@ function DeleteConfirmModal({
   );
 }
 
-// ── Componente principal ──────────────────────────────────────────────────────
+// ── Componente principal ─────────────────────────────────────────────────────
 export function GoalFormModal({ goal, onClose, onSuccess }: Props) {
   const isEdit = !!goal;
 
@@ -300,7 +300,7 @@ export function GoalFormModal({ goal, onClose, onSuccess }: Props) {
           style={{
             background: "#13131a",
             border: "1px solid rgba(255,255,255,0.1)",
-            maxHeight: "92dvh",
+            maxHeight: "calc(100dvh - 80px)",
           }}
         >
           {/* Header fixo */}

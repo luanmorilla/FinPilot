@@ -34,7 +34,7 @@ function formatCurrency(v: number) {
   }).format(v);
 }
 
-// ─── Modal de retirada ───────────────────────────────────────────────────────
+// ─── Modal de retirada ──────────────────────────────────────────────────────
 
 function RetirarModal({
   totalGuardado,
@@ -69,6 +69,12 @@ function RetirarModal({
     setAvaliacao(result.avaliacao);
     if (result.liberado) setLiberado(true);
   }
+
+  // Mostra o footer de "Continuar" só antes de qualquer avaliação do Finn.
+  // Depois que o Finn avaliou, os botões de ação vivem dentro do card de
+  // avaliação (Confirmar retirada / Mesmo assim, quero retirar agora),
+  // pra não duplicar ações conflitantes na tela.
+  const mostrarFooterInicial = !liberado && !avaliacao;
 
   return (
     <motion.div
@@ -210,7 +216,26 @@ function RetirarModal({
                   </p>
                 </div>
 
-                {!avaliacao.liberaDireto && (
+                {avaliacao.liberaDireto ? (
+                  // O Finn liberou direto: precisa de um botão claro pra
+                  // efetivar a retirada (antes não existia nenhum aqui).
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => handleAvaliar(true)}
+                    disabled={isWithdrawing}
+                    className="w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 disabled:opacity-50"
+                    style={{
+                      background: "linear-gradient(135deg, #a855f7, #7c3aed)",
+                      boxShadow: "0 6px 24px rgba(168,85,247,0.35)",
+                    }}
+                  >
+                    {isWithdrawing ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      "Confirmar retirada"
+                    )}
+                  </motion.button>
+                ) : (
                   <button
                     onClick={() => handleAvaliar(true)}
                     disabled={isWithdrawing}
@@ -220,7 +245,11 @@ function RetirarModal({
                       border: "1px solid rgba(255,255,255,0.1)",
                     }}
                   >
-                    Mesmo assim, quero retirar agora
+                    {isWithdrawing ? (
+                      <Loader2 size={14} className="animate-spin mx-auto" />
+                    ) : (
+                      "Mesmo assim, quero retirar agora"
+                    )}
                   </button>
                 )}
               </motion.div>
@@ -257,7 +286,7 @@ function RetirarModal({
         </div>
 
         {/* Footer */}
-        {!liberado && (
+        {mostrarFooterInicial && (
           <div
             className="shrink-0 px-6 py-4"
             style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
@@ -274,8 +303,6 @@ function RetirarModal({
             >
               {isWithdrawing ? (
                 <Loader2 size={16} className="animate-spin" />
-              ) : avaliacao ? (
-                "Reavaliar"
               ) : (
                 "Continuar"
               )}
@@ -287,7 +314,7 @@ function RetirarModal({
   );
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+// ─── Main ───────────────────────────────────────────────────────────────────
 
 export function PiggyHero({
   totalGuardado,
