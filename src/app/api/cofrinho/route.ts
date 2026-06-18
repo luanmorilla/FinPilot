@@ -8,7 +8,7 @@ import type {
   StreakInfo,
   ConquistaCofrinho,
   PrevisaoItem,
-} from "@/app/(dashboard)/cofrinho/types";
+} from "@/app/(main)/cofrinho/types";
 
 // ─── helpers ──────────────────────────────────────────────────────────────
 
