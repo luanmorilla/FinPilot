@@ -19,38 +19,50 @@ interface AlertaFinnProps {
 
 const configTipo = {
   pagamento_amanha: {
-    bg: "from-violet-600/20 to-purple-600/10",
-    borda: "border-violet-500/30",
-    iconBg: "bg-violet-500/20",
-    iconCor: "text-violet-300",
-    dot: "bg-violet-400",
+    style: {
+      background: "linear-gradient(135deg, rgba(109,40,217,0.18) 0%, rgba(76,29,149,0.10) 100%)",
+      border: "1px solid rgba(139,92,246,0.25)",
+      boxShadow: "0 4px 24px rgba(109,40,217,0.15)",
+    },
+    glowColor: "rgba(139,92,246,0.18)",
+    iconStyle: { background: "rgba(139,92,246,0.2)", color: "#c4b5fd" } as React.CSSProperties,
+    dotColor: "#a78bfa",
     pulsa: false,
     Icon: Zap,
   },
   vencendo_hoje: {
-    bg: "from-amber-600/20 to-orange-600/10",
-    borda: "border-amber-500/30",
-    iconBg: "bg-amber-500/20",
-    iconCor: "text-amber-300",
-    dot: "bg-amber-400",
+    style: {
+      background: "linear-gradient(135deg, rgba(217,119,6,0.18) 0%, rgba(180,83,9,0.08) 100%)",
+      border: "1px solid rgba(245,158,11,0.25)",
+      boxShadow: "0 4px 24px rgba(217,119,6,0.12)",
+    },
+    glowColor: "rgba(245,158,11,0.18)",
+    iconStyle: { background: "rgba(245,158,11,0.15)", color: "#fcd34d" } as React.CSSProperties,
+    dotColor: "#f59e0b",
     pulsa: true,
     Icon: Bell,
   },
   urgente: {
-    bg: "from-amber-600/20 to-orange-600/10",
-    borda: "border-amber-500/30",
-    iconBg: "bg-amber-500/20",
-    iconCor: "text-amber-300",
-    dot: "bg-amber-400",
+    style: {
+      background: "linear-gradient(135deg, rgba(217,119,6,0.18) 0%, rgba(180,83,9,0.08) 100%)",
+      border: "1px solid rgba(245,158,11,0.25)",
+      boxShadow: "0 4px 24px rgba(217,119,6,0.12)",
+    },
+    glowColor: "rgba(245,158,11,0.18)",
+    iconStyle: { background: "rgba(245,158,11,0.15)", color: "#fcd34d" } as React.CSSProperties,
+    dotColor: "#f59e0b",
     pulsa: true,
     Icon: AlertTriangle,
   },
   vencida: {
-    bg: "from-red-600/20 to-rose-600/10",
-    borda: "border-red-500/30",
-    iconBg: "bg-red-500/20",
-    iconCor: "text-red-300",
-    dot: "bg-red-400",
+    style: {
+      background: "linear-gradient(135deg, rgba(220,38,38,0.18) 0%, rgba(153,27,27,0.08) 100%)",
+      border: "1px solid rgba(239,68,68,0.25)",
+      boxShadow: "0 4px 24px rgba(220,38,38,0.15)",
+    },
+    glowColor: "rgba(239,68,68,0.18)",
+    iconStyle: { background: "rgba(239,68,68,0.15)", color: "#fca5a5" } as React.CSSProperties,
+    dotColor: "#f87171",
     pulsa: true,
     Icon: AlertTriangle,
   },
@@ -58,9 +70,7 @@ const configTipo = {
 
 export default function AlertaFinn({ alertas }: AlertaFinnProps) {
   const [descartados, setDescartados] = useState<Set<number>>(new Set());
-
   const visiveis = alertas.filter((_, i) => !descartados.has(i));
-
   if (visiveis.length === 0) return null;
 
   return (
@@ -74,51 +84,44 @@ export default function AlertaFinn({ alertas }: AlertaFinnProps) {
           const inner = (
             <motion.div
               key={originalIdx}
-              initial={{ opacity: 0, y: -10, scale: 0.97 }}
+              initial={{ opacity: 0, y: -8, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95, height: 0, marginBottom: 0 }}
-              transition={{ duration: 0.35, delay: idx * 0.08 }}
-              className={`relative rounded-2xl border bg-gradient-to-br ${cfg.bg} ${cfg.borda} p-4 overflow-hidden`}
-              style={{
-                boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-              }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3, delay: idx * 0.07 }}
+              className="relative rounded-2xl p-4 overflow-hidden"
+              style={cfg.style}
             >
-              {/* Glow interno */}
+              {/* Glow de canto */}
               <div
-                className="absolute -top-6 -right-6 w-24 h-24 rounded-full pointer-events-none"
-                style={{
-                  background:
-                    alerta.tipo === "vencida"
-                      ? "radial-gradient(circle, rgba(239,68,68,0.15) 0%, transparent 70%)"
-                      : alerta.tipo === "pagamento_amanha"
-                      ? "radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)"
-                      : "radial-gradient(circle, rgba(245,158,11,0.15) 0%, transparent 70%)",
-                }}
+                className="absolute -top-8 -right-8 w-28 h-28 rounded-full pointer-events-none"
+                style={{ background: `radial-gradient(circle, ${cfg.glowColor} 0%, transparent 70%)` }}
               />
 
               <div className="flex items-start gap-3">
                 {/* Ícone */}
                 <div
-                  className={`flex-shrink-0 w-9 h-9 rounded-xl ${cfg.iconBg} flex items-center justify-center`}
+                  className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
+                  style={cfg.iconStyle}
                 >
-                  <Icon size={16} className={cfg.iconCor} />
+                  <Icon size={15} />
                 </div>
 
                 {/* Texto */}
                 <div className="flex-1 min-w-0 pr-2">
-                  <div className="flex items-center gap-2 mb-0.5">
+                  <div className="flex items-center gap-1.5 mb-1">
                     <span
-                      className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot} ${cfg.pulsa ? "animate-pulse" : ""}`}
+                      className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.pulsa ? "animate-pulse" : ""}`}
+                      style={{ background: cfg.dotColor }}
                     />
-                    <p className="text-[11px] font-bold text-white/90 uppercase tracking-wide">
+                    <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: cfg.dotColor }}>
                       {alerta.titulo}
                     </p>
                   </div>
-                  <p className="text-sm text-white/80 leading-relaxed">
+                  <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>
                     {alerta.mensagem}
                   </p>
                   {alerta.subtitulo && (
-                    <p className="text-[11px] text-white/50 mt-1 leading-relaxed">
+                    <p className="text-[11px] mt-1 leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
                       {alerta.subtitulo}
                     </p>
                   )}
@@ -131,18 +134,17 @@ export default function AlertaFinn({ alertas }: AlertaFinnProps) {
                     e.stopPropagation();
                     setDescartados((prev) => new Set([...prev, originalIdx]));
                   }}
-                  className="flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors"
+                  className="flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center"
+                  style={{ background: "rgba(255,255,255,0.05)" }}
                 >
-                  <X size={12} className="text-white/40" />
+                  <X size={11} style={{ color: "rgba(255,255,255,0.35)" }} />
                 </button>
               </div>
             </motion.div>
           );
 
           return alerta.href ? (
-            <Link key={originalIdx} href={alerta.href}>
-              {inner}
-            </Link>
+            <Link key={originalIdx} href={alerta.href}>{inner}</Link>
           ) : (
             <div key={originalIdx}>{inner}</div>
           );

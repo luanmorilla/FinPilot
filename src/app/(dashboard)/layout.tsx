@@ -46,9 +46,7 @@ function gerarMensagemJarvis(
         detalhe: "Seu saldo ainda aguenta, mas vamos ficar de olho.",
       };
     }
-    return {
-      mensagem: `${firstName}, suas finanças estão controladas mas há espaço para melhorar.`,
-    };
+    return { mensagem: `${firstName}, suas finanças estão controladas mas há espaço para melhorar.` };
   }
   if (saude === "boa") {
     return {
@@ -56,9 +54,7 @@ function gerarMensagemJarvis(
       detalhe: "Continue assim e logo você alcança a saúde financeira ideal.",
     };
   }
-  return {
-    mensagem: `${firstName}, suas finanças estão ótimas! Continue no caminho certo. 🚀`,
-  };
+  return { mensagem: `${firstName}, suas finanças estão ótimas! Continue no caminho certo. 🚀` };
 }
 
 function getUltimosSeisMeses(): string[] {
@@ -73,34 +69,34 @@ function getUltimosSeisMeses(): string[] {
 }
 
 /**
- * Retorna os próximos dias de pagamento do usuário baseado no perfil cadastrado.
- * Retorna um array de datas (dentro dos próximos 7 dias) em que ele vai receber.
+ * Verifica se o usuário recebe nos próximos N dias.
+ * Retorna o número de dias até o próximo pagamento (0 = hoje, 1 = amanhã, etc.)
+ * ou null se não receber nos próximos 7 dias.
  */
-function calcularProximosPagamentos(perfil: {
+function diasAteProximoPagamento(perfil: {
   frequenciaPagamento: string;
   diaFixo?: number | null;
   diasPagamento?: number[];
-} | null): Date[] {
-  if (!perfil) return [];
+} | null): number | null {
+  if (!perfil) return null;
 
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
-  const resultados: Date[] = [];
 
   const { frequenciaPagamento, diaFixo, diasPagamento } = perfil;
 
-  // Verifica os próximos 7 dias
-  for (let offset = 0; offset <= 7; offset++) {
+  for (let offset = 1; offset <= 7; offset++) {
     const data = new Date(hoje);
     data.setDate(hoje.getDate() + offset);
     const diaMes = data.getDate();
-    const diaSemana = data.getDay(); // 0=Dom, 1=Seg...
+    const diaSemana = data.getDay(); // 0=Dom, 1=Seg, 5=Sex
 
     let recebe = false;
 
     if (frequenciaPagamento === "MENSAL" && diaFixo != null) {
       recebe = diaMes === diaFixo;
     } else if (frequenciaPagamento === "SEMANAL" && diaFixo != null) {
+      // diaFixo armazena o dia da semana (0-6)
       recebe = diaSemana === diaFixo;
     } else if (
       (frequenciaPagamento === "QUINZENAL" ||
@@ -112,34 +108,23 @@ function calcularProximosPagamentos(perfil: {
       recebe = diasPagamento.includes(diaMes);
     }
 
-    if (recebe && offset > 0) {
-      // só dias futuros (não hoje)
-      resultados.push(data);
-    }
+    if (recebe) return offset;
   }
 
-  return resultados;
+  return null;
 }
 
 /**
- * Gera os alertas inteligentes do Finn baseados na situação financeira.
- * Prioridade: dívidas vencidas > vencendo hoje > amanhã você recebe e tem dívida vencendo
+ * Gera os alertas inteligentes do Finn.
+ * Ordem de prioridade: vencida > hoje > amanhã recebe com dívida próxima
  */
 function gerarAlertasFinn(
   firstName: string,
-  dividas: {
-    id: string;
-    nome: string;
-    valor: number;
-    vencimento: Date;
-  }[],
-  proximosPagamentos: Date[]
+  dividas: { id: string; nome: string; valor: number; vencimento: Date }[],
+  diasAtePagamento: number | null
 ): AlertaFinnData[] {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
-
-  const amanha = new Date(hoje);
-  amanha.setDate(hoje.getDate() + 1);
 
   const alertas: AlertaFinnData[] = [];
 
@@ -149,10 +134,11 @@ function gerarAlertasFinn(
     v.setHours(0, 0, 0, 0);
     return v < hoje;
   });
+
   if (vencidas.length === 1) {
     alertas.push({
       tipo: "vencida",
-      titulo: "⚠️ Dívida vencida",
+      titulo: "Dívida vencida",
       mensagem: `${firstName}, a dívida "${vencidas[0].nome}" está vencida. Cada dia de atraso pode gerar juros e prejudicar seu histórico. Resolva isso o quanto antes!`,
       subtitulo: "Toque para ver suas dívidas",
       href: "/dividas",
@@ -160,8 +146,8 @@ function gerarAlertasFinn(
   } else if (vencidas.length > 1) {
     alertas.push({
       tipo: "vencida",
-      titulo: "⚠️ Dívidas vencidas",
-      mensagem: `${firstName}, você tem ${vencidas.length} dívidas vencidas. Juros e negativação podem estar acumulando agora. Priorize quitar o quanto antes!`,
+      titulo: "Dívidas vencidas",
+      mensagem: `${firstName}, você tem ${vencidas.length} dívidas vencidas. Juros e negativação podem estar acumulando. Priorize quitar o quanto antes!`,
       subtitulo: "Toque para ver suas dívidas",
       href: "/dividas",
     });
@@ -173,10 +159,11 @@ function gerarAlertasFinn(
     v.setHours(0, 0, 0, 0);
     return v.getTime() === hoje.getTime();
   });
+
   if (vencendoHoje.length === 1) {
     alertas.push({
       tipo: "vencendo_hoje",
-      titulo: "🔔 Vence hoje",
+      titulo: "Vence hoje",
       mensagem: `${firstName}, "${vencendoHoje[0].nome}" vence hoje! Não deixe passar — pagar em dia é a base de uma vida financeira saudável.`,
       subtitulo: "Toque para ver suas dívidas",
       href: "/dividas",
@@ -184,88 +171,51 @@ function gerarAlertasFinn(
   } else if (vencendoHoje.length > 1) {
     alertas.push({
       tipo: "vencendo_hoje",
-      titulo: "🔔 Vencem hoje",
+      titulo: "Vencem hoje",
       mensagem: `${firstName}, você tem ${vencendoHoje.length} contas vencendo hoje. Organize-se agora para não perder nenhum prazo!`,
       subtitulo: "Toque para ver suas dívidas",
       href: "/dividas",
     });
   }
 
-  // 3. Alerta inteligente: amanhã você recebe E tem dívida vencendo em até 3 dias
-  const recebeAmanha = proximosPagamentos.some((p) => {
-    return p.getTime() === amanha.getTime();
-  });
-
-  if (recebeAmanha && vencidas.length === 0) {
-    const em3Dias = new Date(hoje);
-    em3Dias.setDate(hoje.getDate() + 3);
+  // 3. Alerta inteligente: recebe em breve + tem dívida vencendo próximo
+  // Só mostra se não há dívidas vencidas (prioridade maior já tratada acima)
+  if (diasAtePagamento !== null && vencidas.length === 0 && vencendoHoje.length === 0) {
+    // Dívidas que vencem dentro de até 5 dias a partir de hoje
+    const limiteVenc = new Date(hoje);
+    limiteVenc.setDate(hoje.getDate() + 5);
 
     const dividasProximas = dividas.filter((d) => {
       const v = new Date(d.vencimento);
       v.setHours(0, 0, 0, 0);
-      return v > hoje && v <= em3Dias;
+      return v > hoje && v <= limiteVenc;
     });
 
-    if (dividasProximas.length === 1) {
-      const div = dividasProximas[0];
-      const valor = new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }).format(div.valor);
+    if (dividasProximas.length > 0) {
+      const labelDias =
+        diasAtePagamento === 1
+          ? "amanhã"
+          : `em ${diasAtePagamento} dias`;
 
-      alertas.push({
-        tipo: "pagamento_amanha",
-        titulo: "💡 Dica do Finn",
-        mensagem: `${firstName}, amanhã é dia de receber! Já separe ${valor} para quitar "${div.nome}" que vence em breve. Pagar antes do prazo evita juros e te mantém no controle.`,
-        subtitulo: "Lembre-se: você é quem controla o seu dinheiro.",
-        href: "/dividas",
-      });
-    } else if (dividasProximas.length > 1) {
-      const totalProximo = dividasProximas.reduce((s, d) => s + d.valor, 0);
-      const totalFmt = new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }).format(totalProximo);
+      const fmt = (v: number) =>
+        new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
 
-      alertas.push({
-        tipo: "pagamento_amanha",
-        titulo: "💡 Dica do Finn",
-        mensagem: `${firstName}, amanhã você recebe! Você tem ${dividasProximas.length} contas totalizando ${totalFmt} vencendo nos próximos dias. Aproveite o pagamento para já separar esses valores!`,
-        subtitulo: "Disciplina financeira é o caminho para a liberdade.",
-        href: "/dividas",
-      });
-    }
-  }
-
-  // 4. Recebe em breve (próximos 3 dias, não amanhã) e tem dívida próxima
-  if (!recebeAmanha && vencidas.length === 0) {
-    const pagamentosProximos = proximosPagamentos.filter((p) => {
-      const diff = Math.round((p.getTime() - hoje.getTime()) / 86400000);
-      return diff >= 2 && diff <= 3;
-    });
-
-    if (pagamentosProximos.length > 0) {
-      const diasParaReceber = Math.round(
-        (pagamentosProximos[0].getTime() - hoje.getTime()) / 86400000
-      );
-      const dividasProximas = dividas.filter((d) => {
-        const v = new Date(d.vencimento);
-        v.setHours(0, 0, 0, 0);
-        return v > hoje && v <= pagamentosProximos[0];
-      });
-
-      if (dividasProximas.length > 0) {
+      if (dividasProximas.length === 1) {
         const div = dividasProximas[0];
-        const valor = new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(div.valor);
-
         alertas.push({
-          tipo: "urgente",
-          titulo: "📅 Planejamento",
-          mensagem: `${firstName}, em ${diasParaReceber} dias você recebe. Já planeje separar ${valor} para "${div.nome}" que vence logo depois. Antecipar é a melhor estratégia!`,
-          subtitulo: "Toque para ver suas dívidas",
+          tipo: "pagamento_amanha",
+          titulo: "Dica do Finn",
+          mensagem: `${firstName}, você recebe ${labelDias}! Já separe ${fmt(div.valor)} para quitar "${div.nome}" que vence em breve. Pagar antes do prazo evita juros e te mantém no controle.`,
+          subtitulo: "Lembre-se: você é quem controla o seu dinheiro.",
+          href: "/dividas",
+        });
+      } else {
+        const total = dividasProximas.reduce((s, d) => s + d.valor, 0);
+        alertas.push({
+          tipo: "pagamento_amanha",
+          titulo: "Dica do Finn",
+          mensagem: `${firstName}, você recebe ${labelDias}! Você tem ${dividasProximas.length} contas totalizando ${fmt(total)} vencendo em breve. Aproveite o pagamento para já separar esses valores!`,
+          subtitulo: "Disciplina financeira é o caminho para a liberdade.",
           href: "/dividas",
         });
       }
@@ -290,23 +240,16 @@ export default async function DashboardPage() {
         where: { userId, paga: false },
         orderBy: { vencimento: "asc" },
       }),
-      prisma.meta.findMany({
-        where: { userId, concluida: false },
-      }),
+      prisma.meta.findMany({ where: { userId, concluida: false } }),
       prisma.cofrinho.findFirst({ where: { userId } }),
       prisma.transacao.findMany({
         where: {
           userId,
-          data: {
-            gte: new Date(new Date().setMonth(new Date().getMonth() - 6)),
-          },
+          data: { gte: new Date(new Date().setMonth(new Date().getMonth() - 6)) },
         },
         orderBy: { data: "asc" },
       }),
-      prisma.alerta.findMany({
-        where: { userId, lido: false },
-        take: 20,
-      }),
+      prisma.alerta.findMany({ where: { userId, lido: false }, take: 20 }),
     ]);
 
   const receita = perfil?.salario ?? 0;
@@ -336,78 +279,52 @@ export default async function DashboardPage() {
 
   const totalComprometido = totalDividas + totalCofrinhoValor;
   const saldoDisponivel = receita - totalComprometido;
-  const percentualComprometido =
-    receita > 0 ? (totalComprometido / receita) * 100 : 0;
+  const percentualComprometido = receita > 0 ? (totalComprometido / receita) * 100 : 0;
 
   const saude = calcularSaudeFinanceira(percentualComprometido);
   const firstName = (session.user.name ?? "").split(" ")[0] || "você";
 
   const { mensagem, detalhe } = gerarMensagemJarvis(
-    firstName,
-    saude,
-    dividasVencendoEmBreve,
-    saldoDisponivel,
-    dividas.length > 0,
-    metas.length > 0,
-    cofrinho !== null
+    firstName, saude, dividasVencendoEmBreve, saldoDisponivel,
+    dividas.length > 0, metas.length > 0, cofrinho !== null
   );
 
-  // Calcular próximos dias de pagamento do usuário
-  const proximosPagamentos = calcularProximosPagamentos(
-    perfil
-      ? {
-          frequenciaPagamento: perfil.frequenciaPagamento,
-          diaFixo: perfil.diaFixo,
-          diasPagamento: perfil.diasPagamento,
-        }
-      : null
+  // Calcular dias até o próximo pagamento
+  const diasAtePagamento = diasAteProximoPagamento(
+    perfil ? {
+      frequenciaPagamento: perfil.frequenciaPagamento,
+      diaFixo: perfil.diaFixo,
+      diasPagamento: perfil.diasPagamento,
+    } : null
   );
 
-  // Gerar alertas inteligentes do Finn
+  // Gerar alertas inteligentes
   const alertasFinn = gerarAlertasFinn(
     firstName,
-    dividas.map((d) => ({
-      id: d.id,
-      nome: d.nome,
-      valor: d.valor,
-      vencimento: d.vencimento,
-    })),
-    proximosPagamentos
+    dividas.map((d) => ({ id: d.id, nome: d.nome, valor: d.valor, vencimento: d.vencimento })),
+    diasAtePagamento
   );
 
   const mesesLabels = getUltimosSeisMeses();
   const agora = new Date();
   const dadosFluxo = mesesLabels.map((mes, i) => {
     const mesIdx = (agora.getMonth() - (5 - i) + 12) % 12;
-    const anoRef =
-      agora.getFullYear() - (agora.getMonth() - (5 - i) < 0 ? 1 : 0);
-
+    const anoRef = agora.getFullYear() - (agora.getMonth() - (5 - i) < 0 ? 1 : 0);
     const transacoesMes = transacoes.filter((t) => {
       const d = new Date(t.data);
       return d.getMonth() === mesIdx && d.getFullYear() === anoRef;
     });
-
-    const receitaMes = transacoesMes
-      .filter((t) => t.tipo === "RECEITA")
-      .reduce((acc, t) => acc + t.valor, 0);
-
-    const gastoMes = transacoesMes
-      .filter((t) => t.tipo === "DESPESA")
-      .reduce((acc, t) => acc + t.valor, 0);
-
-    return {
-      mes,
-      receita: receitaMes || (i === 5 ? receita : 0),
-      gasto: gastoMes,
-    };
+    const receitaMes = transacoesMes.filter((t) => t.tipo === "RECEITA").reduce((acc, t) => acc + t.valor, 0);
+    const gastoMes = transacoesMes.filter((t) => t.tipo === "DESPESA").reduce((acc, t) => acc + t.valor, 0);
+    return { mes, receita: receitaMes || (i === 5 ? receita : 0), gasto: gastoMes };
   });
 
   const proximosVencimentos = dividas.map((d) => ({
-      id: d.id,
-      nome: d.nome,
-      valor: d.valor,
-      dataVencimento: d.vencimento,
-      categoria: String(d.categoria ?? "Outros"),
+    id: d.id,
+    nome: d.nome,
+    valor: d.valor,
+    dataVencimento: d.vencimento,
+    categoria: String(d.categoria ?? "Outros"),
   }));
 
   return (
@@ -418,16 +335,10 @@ export default async function DashboardPage() {
         userImage={session.user.image ?? undefined}
       />
 
-      {/* ── Alertas inteligentes do Finn (visíveis logo ao entrar) ── */}
-      {alertasFinn.length > 0 && (
-        <AlertaFinn alertas={alertasFinn} />
-      )}
+      {/* Alertas inteligentes do Finn — visíveis logo ao entrar */}
+      {alertasFinn.length > 0 && <AlertaFinn alertas={alertasFinn} />}
 
-      <SaudoCard
-        saudeFinanceira={saude}
-        mensagem={mensagem}
-        detalhe={detalhe}
-      />
+      <SaudoCard saudeFinanceira={saude} mensagem={mensagem} detalhe={detalhe} />
 
       <SaldoRealCard
         saldoDisponivel={saldoDisponivel}
