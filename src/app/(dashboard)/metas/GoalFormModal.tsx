@@ -288,8 +288,12 @@ export function GoalFormModal({ goal, onClose, onSuccess }: Props) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
-        style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}
+        className="fixed inset-x-0 top-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+        style={{
+          bottom: 80,
+          background: "rgba(0,0,0,0.7)",
+          backdropFilter: "blur(8px)",
+        }}
         onClick={(e) => e.target === e.currentTarget && onClose()}
       >
         <motion.div
@@ -301,11 +305,10 @@ export function GoalFormModal({ goal, onClose, onSuccess }: Props) {
           style={{
             background: "#13131a",
             border: "1px solid rgba(255,255,255,0.1)",
-            // height fixo (não só maxHeight) garante que o footer nunca
-            // seja empurrado para fora da tela quando o conteúdo do
-            // formulário crescer (ex: card de Inteligência Financeira).
-            height: "min(calc(100dvh - 80px), 720px)",
-            maxHeight: "calc(100dvh - 80px)",
+            // O overlay externo já reserva os 80px da bottom nav (top-0 +
+            // bottom: 80), então o card só precisa caber na área que sobrou
+            // — sem recalcular 100dvh - 80px de novo aqui dentro.
+            height: "min(100%, 720px)",
           }}
         >
           {/* Header fixo */}
