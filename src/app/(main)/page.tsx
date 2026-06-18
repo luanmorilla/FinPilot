@@ -10,8 +10,6 @@ import FluxoChart from "@/components/dashboard/FluxoChart";
 import ProximosVencimentos from "@/components/dashboard/ProximosVencimentos";
 import AlertaFinn, { type AlertaFinnData } from "@/components/dashboard/AlertaFinn";
 
-// ─── helpers (originais, sem alteração) ─────────────────────────────────────
-
 function calcularSaudeFinanceira(percentual: number) {
   if (percentual < 50) return "otima" as const;
   if (percentual < 70) return "boa" as const;
@@ -28,14 +26,12 @@ function gerarMensagemJarvis(
   temMetas: boolean,
   temCofrinho: boolean
 ): { mensagem: string; detalhe?: string } {
-
   if (!temDividas && !temMetas && !temCofrinho) {
     return {
       mensagem: `${firstName}, que bom ter você aqui! Vamos começar organizando suas finanças.`,
       detalhe: "Cadastre suas dívidas, metas e cofrinho para eu te ajudar melhor.",
     }
   }
-
   if (saude === "critica") {
     return {
       mensagem: `${firstName}, preciso da sua atenção. Seus gastos estão comprometendo quase toda a sua renda.`,
@@ -75,26 +71,20 @@ function getUltimosSeisMeses(): string[] {
   return resultado;
 }
 
-// ─── NOVO: detecta dias até próximo pagamento ────────────────────────────────
-
 function diasAteProximoPagamento(perfil: {
   frequenciaPagamento: string;
   diaFixo?: number | null;
   diasPagamento?: number[];
 } | null): number | null {
   if (!perfil) return null;
-
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
-
   const { frequenciaPagamento, diaFixo, diasPagamento } = perfil;
-
   for (let offset = 1; offset <= 7; offset++) {
     const data = new Date(hoje);
     data.setDate(hoje.getDate() + offset);
     const diaMes = data.getDate();
     const diaSemana = data.getDay();
-
     let recebe = false;
     if (frequenciaPagamento === "MENSAL" && diaFixo != null) {
       recebe = diaMes === diaFixo;
@@ -112,8 +102,6 @@ function diasAteProximoPagamento(perfil: {
   }
   return null;
 }
-
-// ─── NOVO: gera alertas do Finn ─────────────────────────────────────────────
 
 function gerarAlertasFinn(
   firstName: string,
@@ -177,8 +165,6 @@ function gerarAlertasFinn(
   return alertas;
 }
 
-// ─── page (original, sem alteração) ─────────────────────────────────────────
-
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -211,7 +197,12 @@ export default async function DashboardPage() {
       }),
     ]);
 
-  const receita = perfil?.salario ?? 0;
+  // ← REDIRECT se não tiver perfil configurado
+  if (!perfil) {
+    redirect("/onboarding");
+  }
+
+  const receita = perfil.salario ?? 0;
   const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);
 
   const hoje = new Date();
@@ -254,14 +245,11 @@ export default async function DashboardPage() {
     cofrinho !== null
   );
 
-  // NOVO: alertas inteligentes
-  const diasAtePagamento = diasAteProximoPagamento(
-    perfil ? {
-      frequenciaPagamento: perfil.frequenciaPagamento,
-      diaFixo: perfil.diaFixo,
-      diasPagamento: perfil.diasPagamento,
-    } : null
-  );
+  const diasAtePagamento = diasAteProximoPagamento({
+    frequenciaPagamento: perfil.frequenciaPagamento,
+    diaFixo: perfil.diaFixo,
+    diasPagamento: perfil.diasPagamento,
+  });
 
   const alertasFinn = gerarAlertasFinn(
     firstName,
@@ -312,7 +300,6 @@ export default async function DashboardPage() {
         userImage={session.user.image ?? undefined}
       />
 
-      {/* NOVO: alerta do Finn — aparece entre header e SaudoCard */}
       {alertasFinn.length > 0 && <AlertaFinn alertas={alertasFinn} />}
 
       <SaudoCard
