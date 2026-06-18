@@ -24,30 +24,23 @@ export default function FinnModal() {
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
-            transition={{
-              type: "spring",
-              damping: 28,
-              stiffness: 250,
-            }}
-            className="fixed inset-0 z-[1000] bg-[#0a0a0f] flex flex-col"
+            transition={{ type: "spring", damping: 28, stiffness: 250 }}
+            className="fixed inset-x-0 top-0 z-[1000] bg-[#0a0a0f] flex flex-col"
+            style={{ bottom: 80 }} // respeita a bottom nav
           >
-            <div className="h-16 border-b border-white/10 flex items-center justify-between px-5">
+            {/* Header */}
+            <div className="shrink-0 h-16 border-b border-white/10 flex items-center justify-between px-5">
               <div>
-                <h2 className="font-bold text-white">
-                  Finn
-                </h2>
-
-                <p className="text-xs text-zinc-400">
-                  Seu copiloto financeiro
-                </p>
+                <h2 className="font-bold text-white">Finn</h2>
+                <p className="text-xs text-zinc-400">Seu copiloto financeiro</p>
               </div>
-
               <button onClick={close}>
                 <X className="text-white" />
               </button>
             </div>
 
-            <div className="flex-1">
+            {/* Chat ocupa o resto */}
+            <div className="flex-1 min-h-0">
               <FinnChat />
             </div>
           </motion.div>

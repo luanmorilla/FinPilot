@@ -82,8 +82,7 @@ function RetirarModal({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-x-0 top-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
-style={{ bottom: 80, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      style={{ bottom: 100, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <motion.div
         initial={{ y: 60, opacity: 0 }}
