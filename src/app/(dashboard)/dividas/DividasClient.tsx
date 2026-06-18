@@ -300,6 +300,20 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
         </div>
       </div>
 
+      {/* Cadastrar nova dívida */}
+      <div className="mx-4 mb-5 rounded-2xl px-4 py-3.5 flex items-center justify-between gap-3"
+        style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
+        <p className="text-sm font-semibold text-white">Cadastrar nova dívida</p>
+        <motion.button whileTap={{ scale: 0.94 }} onClick={() => setShowModal(true)}
+          className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white"
+          style={{
+            background: "linear-gradient(135deg, #a855f7, #7c3aed)",
+            boxShadow: "0 4px 16px rgba(168,85,247,0.35)",
+          }}>
+          <Plus size={14} strokeWidth={2.5} /> Adicionar
+        </motion.button>
+      </div>
+
       {/* Resumo */}
       <div className="mx-4 grid grid-cols-2 gap-3 mb-5">
         {[
@@ -340,7 +354,7 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
               style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed rgba(255,255,255,0.07)" }}>
               <CreditCard size={36} className="text-zinc-700 mx-auto mb-3" />
               <p className="text-zinc-400 font-semibold text-sm">Nenhuma dívida aqui</p>
-              <p className="text-zinc-600 text-xs mt-1">Toque em + para adicionar</p>
+              <p className="text-zinc-600 text-xs mt-1">Toque em &quot;Adicionar&quot; para cadastrar</p>
             </motion.div>
           ) : dividasFiltradas.map((d, i) => {
             const dias      = getDiasRestantes(d.vencimento)
@@ -403,17 +417,6 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
           })}
         </AnimatePresence>
       </div>
-
-      {/* FAB */}
-      <motion.button whileTap={{ scale: 0.92 }} onClick={() => setShowModal(true)}
-        className="fixed right-5 w-14 h-14 rounded-2xl flex items-center justify-center z-40"
-        style={{
-          bottom: "calc(80px + env(safe-area-inset-bottom, 0px))",
-          background: "linear-gradient(135deg, #a855f7, #7c3aed)",
-          boxShadow: "0 8px 32px rgba(168,85,247,0.45)",
-        }}>
-        <Plus size={22} className="text-white" strokeWidth={2.5} />
-      </motion.button>
 
       {/* MODAL */}
       <AnimatePresence>
