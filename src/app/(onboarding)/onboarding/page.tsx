@@ -83,7 +83,6 @@ export default function OnboardingPage() {
   return (
     <main className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
-        {/* Progress */}
         <div className="flex items-center justify-center gap-2 mb-8">
           {[1,2,3,4].map((s, i) => (
             <div key={s} className="flex items-center gap-2">
@@ -175,9 +174,7 @@ export default function OnboardingPage() {
 
                 <div className="space-y-3 mb-5">
                   {frequencias.map((freq) => (
-                    <button
-                      key={freq.value}
-                      type="button"
+                    <button key={freq.value} type="button"
                       onClick={() => {
                         setSelectedFrequencia(freq.value)
                         setSelectedDias([])

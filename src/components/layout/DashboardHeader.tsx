@@ -2,23 +2,8 @@
 
 import { motion } from "framer-motion"
 import { Bell, Search } from "lucide-react"
-import Link from "next/link"
 import Image from "next/image"
-
-function getGreeting(): string {
-  const h = new Date().getHours()
-  if (h >= 5 && h < 12) return "Bom dia"
-  if (h >= 12 && h < 18) return "Boa tarde"
-  return "Boa noite"
-}
-
-function getFormattedDate(): string {
-  return new Date().toLocaleDateString("pt-BR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  })
-}
+import { useState, useEffect } from "react"
 
 interface DashboardHeaderProps {
   alertasNaoLidos?: number
@@ -32,9 +17,23 @@ export default function DashboardHeader({
   userImage,
 }: DashboardHeaderProps) {
   const firstName = userName ? userName.split(" ")[0] : "você"
-  const greeting = getGreeting()
-  const date = getFormattedDate()
   const initials = firstName.slice(0, 2).toUpperCase()
+
+  const [greeting, setGreeting] = useState("")
+  const [date, setDate] = useState("")
+
+  useEffect(() => {
+    const h = new Date().getHours()
+    if (h >= 5 && h < 12) setGreeting("Bom dia")
+    else if (h >= 12 && h < 18) setGreeting("Boa tarde")
+    else setGreeting("Boa noite")
+
+    setDate(new Date().toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    }))
+  }, [])
 
   return (
     <motion.header
@@ -43,7 +42,6 @@ export default function DashboardHeader({
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="flex items-center justify-between px-5 pt-14 pb-4"
     >
-      {/* Left: greeting */}
       <div>
         <h1 className="text-2xl font-bold text-white leading-tight">
           Olá, {firstName} 👋
@@ -51,23 +49,18 @@ export default function DashboardHeader({
         <p className="text-sm text-slate-400 mt-0.5 capitalize">{date}</p>
       </div>
 
-      {/* Right: search + bell + avatar */}
       <div className="flex items-center gap-2.5">
-        {/* Search */}
-        <Link href="/consultor">
-          <motion.div
-            whileTap={{ scale: 0.9 }}
-            className="w-10 h-10 rounded-2xl flex items-center justify-center"
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.08)",
-            }}
-          >
-            <Search size={17} className="text-slate-400" />
-          </motion.div>
-        </Link>
+        <motion.div
+          whileTap={{ scale: 0.9 }}
+          className="w-10 h-10 rounded-2xl flex items-center justify-center cursor-pointer"
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <Search size={17} className="text-slate-400" />
+        </motion.div>
 
-        {/* Bell — sem link até /alertas existir */}
         <motion.div
           whileTap={{ scale: 0.9 }}
           className="relative w-10 h-10 rounded-2xl flex items-center justify-center cursor-pointer"
@@ -87,7 +80,6 @@ export default function DashboardHeader({
           )}
         </motion.div>
 
-        {/* Avatar — sem link até /perfil existir */}
         <motion.div
           whileTap={{ scale: 0.9 }}
           className="w-10 h-10 rounded-2xl overflow-hidden flex items-center justify-center font-bold text-sm text-white shadow-lg cursor-pointer"

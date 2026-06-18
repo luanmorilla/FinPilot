@@ -1,59 +1,105 @@
-"use client";
+"use client"
 
-import FinnProvider from "@/components/finn/FinnProvider";
-import FinnModal from "@/components/finn/FinnModal";
-import BottomNav from "@/components/layout/BottomNav";
+import { motion } from "framer-motion"
+import { Bell, Search } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
+import { useState, useEffect } from "react"
 
-export default function DashboardShell({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+interface DashboardHeaderProps {
+  alertasNaoLidos?: number
+  userName?: string
+  userImage?: string
+}
+
+export default function DashboardHeader({
+  alertasNaoLidos = 0,
+  userName,
+  userImage,
+}: DashboardHeaderProps) {
+  const firstName = userName ? userName.split(" ")[0] : "você"
+  const initials = firstName.slice(0, 2).toUpperCase()
+
+  const [greeting, setGreeting] = useState("")
+  const [date, setDate] = useState("")
+
+  useEffect(() => {
+    const h = new Date().getHours()
+    if (h >= 5 && h < 12) setGreeting("Bom dia")
+    else if (h >= 12 && h < 18) setGreeting("Boa tarde")
+    else setGreeting("Boa noite")
+
+    setDate(new Date().toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    }))
+  }, [])
+
   return (
-    <FinnProvider>
-      <div
-        style={{
-          minHeight: "100vh",
-          backgroundColor: "#0a0a0f",
-          color: "#ffffff",
-        }}
-      >
-        <div
+    <motion.header
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="flex items-center justify-between px-5 pt-14 pb-4"
+    >
+      <div>
+        <h1 className="text-2xl font-bold text-white leading-tight">
+          Olá, {firstName} 👋
+        </h1>
+        <p className="text-sm text-slate-400 mt-0.5 capitalize">{date}</p>
+      </div>
+
+      <div className="flex items-center gap-2.5">
+        <Link href="/consultor">
+          <motion.div
+            whileTap={{ scale: 0.9 }}
+            className="w-10 h-10 rounded-2xl flex items-center justify-center"
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            <Search size={17} className="text-slate-400" />
+          </motion.div>
+        </Link>
+
+        <motion.div
+          whileTap={{ scale: 0.9 }}
+          className="relative w-10 h-10 rounded-2xl flex items-center justify-center cursor-pointer"
           style={{
-            position: "fixed",
-            inset: 0,
-            pointerEvents: "none",
-            overflow: "hidden",
-            zIndex: 0,
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.08)",
           }}
         >
-          <div style={{
-            position: "absolute", top: -160, left: -160,
-            width: 384, height: 384, borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%)",
-            filter: "blur(40px)",
-          }} />
-          <div style={{
-            position: "absolute", top: "50%", right: -160,
-            width: 320, height: 320, borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%)",
-            filter: "blur(40px)",
-          }} />
-          <div style={{
-            position: "absolute", bottom: -80, left: "33%",
-            width: 288, height: 288, borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(139,92,246,0.05) 0%, transparent 70%)",
-            filter: "blur(40px)",
-          }} />
-        </div>
+          <Bell size={17} className="text-slate-400" />
+          {alertasNaoLidos > 0 && (
+            <span
+              className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center text-white"
+              style={{ background: "linear-gradient(135deg,#6D5DFD,#3B82F6)" }}
+            >
+              {alertasNaoLidos > 9 ? "9+" : alertasNaoLidos}
+            </span>
+          )}
+        </motion.div>
 
-        <main style={{ position: "relative", zIndex: 10, paddingBottom: 96, minHeight: "100vh" }}>
-          {children}
-        </main>
-
-        <BottomNav />
-        <FinnModal />
+        <motion.div
+          whileTap={{ scale: 0.9 }}
+          className="w-10 h-10 rounded-2xl overflow-hidden flex items-center justify-center font-bold text-sm text-white shadow-lg cursor-pointer"
+          style={{
+            background: userImage
+              ? "transparent"
+              : "linear-gradient(135deg,#7C4DFF,#3B82F6)",
+            boxShadow: "0 4px 16px rgba(124,77,255,0.3)",
+          }}
+        >
+          {userImage ? (
+            <Image src={userImage} alt={firstName} width={40} height={40} className="object-cover" />
+          ) : (
+            initials
+          )}
+        </motion.div>
       </div>
-    </FinnProvider>
-  );
+    </motion.header>
+  )
 }
