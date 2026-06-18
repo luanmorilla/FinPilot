@@ -715,8 +715,6 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                   )}
                 </AnimatePresence>
 
-                <p className="text-center text-[10px] text-zinc-600 mb-3">🔒 Seus dados são 100% seguros</p>
-
                 <motion.button whileTap={{ scale: 0.97 }}
                   onClick={handleSubmit}
                   disabled={isLoading || !isFormValid}
@@ -729,6 +727,8 @@ export default function DividasClient({ dividas: inicial, salario }: DividasClie
                     ? <Loader2 size={18} className="animate-spin" />
                     : <><Plus size={18} strokeWidth={2.5} /> Adicionar Dívida</>}
                 </motion.button>
+
+                <p className="text-center text-[10px] text-zinc-600 mt-3">🔒 Seus dados são 100% seguros</p>
               </div>
 
             </motion.div>
