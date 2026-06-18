@@ -301,14 +301,15 @@ export function GoalFormModal({ goal, onClose, onSuccess }: Props) {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 60, opacity: 0 }}
           transition={{ type: "spring", damping: 28, stiffness: 300 }}
-          className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl flex flex-col"
+          className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl flex flex-col mb-3 sm:mb-0"
           style={{
             background: "#13131a",
             border: "1px solid rgba(255,255,255,0.1)",
             // O overlay externo já reserva os 80px da bottom nav (top-0 +
             // bottom: 80), então o card só precisa caber na área que sobrou
             // — sem recalcular 100dvh - 80px de novo aqui dentro.
-            height: "min(100%, 720px)",
+            // mb-3 dá um respiro entre o card e a nav, em vez de ficar colado.
+            height: "min(calc(100% - 12px), 720px)",
           }}
         >
           {/* Header fixo */}
