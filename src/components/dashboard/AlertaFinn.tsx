@@ -17,134 +17,132 @@ interface AlertaFinnProps {
   alertas: AlertaFinnData[];
 }
 
-const configTipo = {
-  pagamento_amanha: {
-    style: {
-      background: "linear-gradient(135deg, rgba(109,40,217,0.18) 0%, rgba(76,29,149,0.10) 100%)",
-      border: "1px solid rgba(139,92,246,0.25)",
-      boxShadow: "0 4px 24px rgba(109,40,217,0.15)",
-    },
-    glowColor: "rgba(139,92,246,0.18)",
-    iconStyle: { background: "rgba(139,92,246,0.2)", color: "#c4b5fd" } as React.CSSProperties,
-    dotColor: "#a78bfa",
-    pulsa: false,
-    Icon: Zap,
-  },
-  vencendo_hoje: {
-    style: {
-      background: "linear-gradient(135deg, rgba(217,119,6,0.18) 0%, rgba(180,83,9,0.08) 100%)",
-      border: "1px solid rgba(245,158,11,0.25)",
-      boxShadow: "0 4px 24px rgba(217,119,6,0.12)",
-    },
-    glowColor: "rgba(245,158,11,0.18)",
-    iconStyle: { background: "rgba(245,158,11,0.15)", color: "#fcd34d" } as React.CSSProperties,
-    dotColor: "#f59e0b",
-    pulsa: true,
-    Icon: Bell,
-  },
-  urgente: {
-    style: {
-      background: "linear-gradient(135deg, rgba(217,119,6,0.18) 0%, rgba(180,83,9,0.08) 100%)",
-      border: "1px solid rgba(245,158,11,0.25)",
-      boxShadow: "0 4px 24px rgba(217,119,6,0.12)",
-    },
-    glowColor: "rgba(245,158,11,0.18)",
-    iconStyle: { background: "rgba(245,158,11,0.15)", color: "#fcd34d" } as React.CSSProperties,
-    dotColor: "#f59e0b",
-    pulsa: true,
-    Icon: AlertTriangle,
-  },
-  vencida: {
-    style: {
-      background: "linear-gradient(135deg, rgba(220,38,38,0.18) 0%, rgba(153,27,27,0.08) 100%)",
-      border: "1px solid rgba(239,68,68,0.25)",
-      boxShadow: "0 4px 24px rgba(220,38,38,0.15)",
-    },
-    glowColor: "rgba(239,68,68,0.18)",
-    iconStyle: { background: "rgba(239,68,68,0.15)", color: "#fca5a5" } as React.CSSProperties,
-    dotColor: "#f87171",
-    pulsa: true,
-    Icon: AlertTriangle,
-  },
-};
-
 export default function AlertaFinn({ alertas }: AlertaFinnProps) {
   const [descartados, setDescartados] = useState<Set<number>>(new Set());
   const visiveis = alertas.filter((_, i) => !descartados.has(i));
   if (visiveis.length === 0) return null;
 
   return (
-    <div className="mx-4 mt-3 space-y-2.5">
+    <div style={{ margin: "12px 16px 0", display: "flex", flexDirection: "column", gap: 10 }}>
       <AnimatePresence>
         {visiveis.map((alerta, idx) => {
-          const cfg = configTipo[alerta.tipo];
-          const Icon = cfg.Icon;
           const originalIdx = alertas.indexOf(alerta);
+
+          const isVencida = alerta.tipo === "vencida";
+          const isHoje = alerta.tipo === "vencendo_hoje" || alerta.tipo === "urgente";
+          const isPagamento = alerta.tipo === "pagamento_amanha";
+
+          const bg = isVencida
+            ? "linear-gradient(135deg, rgba(220,38,38,0.16) 0%, rgba(120,10,10,0.10) 100%)"
+            : isHoje
+            ? "linear-gradient(135deg, rgba(217,119,6,0.16) 0%, rgba(120,60,0,0.10) 100%)"
+            : "linear-gradient(135deg, rgba(109,40,217,0.16) 0%, rgba(55,15,120,0.10) 100%)";
+
+          const borderColor = isVencida
+            ? "rgba(239,68,68,0.22)"
+            : isHoje
+            ? "rgba(245,158,11,0.22)"
+            : "rgba(139,92,246,0.22)";
+
+          const iconBg = isVencida
+            ? "rgba(239,68,68,0.14)"
+            : isHoje
+            ? "rgba(245,158,11,0.14)"
+            : "rgba(139,92,246,0.14)";
+
+          const iconColor = isVencida ? "#fca5a5" : isHoje ? "#fcd34d" : "#c4b5fd";
+          const dotColor = isVencida ? "#f87171" : isHoje ? "#f59e0b" : "#a78bfa";
+          const glowColor = isVencida
+            ? "rgba(239,68,68,0.12)"
+            : isHoje
+            ? "rgba(245,158,11,0.12)"
+            : "rgba(139,92,246,0.12)";
+
+          const Icon = isVencida ? AlertTriangle : isHoje ? Bell : Zap;
+          const pulsa = isVencida || isHoje;
 
           const inner = (
             <motion.div
               key={originalIdx}
-              initial={{ opacity: 0, y: -8, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3, delay: idx * 0.07 }}
-              className="relative rounded-2xl p-4 overflow-hidden"
-              style={cfg.style}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.28, delay: idx * 0.06 }}
+              style={{
+                position: "relative",
+                borderRadius: 16,
+                padding: 14,
+                overflow: "hidden",
+                background: bg,
+                border: `1px solid ${borderColor}`,
+                boxShadow: `0 2px 16px rgba(0,0,0,0.25)`,
+              }}
             >
-              {/* Glow de canto */}
-              <div
-                className="absolute -top-8 -right-8 w-28 h-28 rounded-full pointer-events-none"
-                style={{ background: `radial-gradient(circle, ${cfg.glowColor} 0%, transparent 70%)` }}
-              />
+              {/* glow */}
+              <div style={{
+                position: "absolute", top: -24, right: -24,
+                width: 80, height: 80, borderRadius: "50%", pointerEvents: "none",
+                background: `radial-gradient(circle, ${glowColor} 0%, transparent 70%)`,
+              }} />
 
-              <div className="flex items-start gap-3">
-                {/* Ícone */}
-                <div
-                  className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
-                  style={cfg.iconStyle}
-                >
-                  <Icon size={15} />
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                {/* ícone */}
+                <div style={{
+                  flexShrink: 0, width: 34, height: 34, borderRadius: 10,
+                  background: iconBg, color: iconColor,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <Icon size={14} color={iconColor} />
                 </div>
 
-                {/* Texto */}
-                <div className="flex-1 min-w-0 pr-2">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.pulsa ? "animate-pulse" : ""}`}
-                      style={{ background: cfg.dotColor }}
-                    />
-                    <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: cfg.dotColor }}>
+                {/* texto */}
+                <div style={{ flex: 1, minWidth: 0, paddingRight: 6 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                    <span style={{
+                      width: 6, height: 6, borderRadius: "50%",
+                      background: dotColor, flexShrink: 0,
+                      animation: pulsa ? "pulse 2s infinite" : undefined,
+                    }} />
+                    <p style={{
+                      fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
+                      textTransform: "uppercase", color: dotColor, margin: 0,
+                    }}>
                       {alerta.titulo}
                     </p>
                   </div>
-                  <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>
+                  <p style={{ fontSize: 13, lineHeight: 1.45, color: "rgba(255,255,255,0.82)", margin: 0 }}>
                     {alerta.mensagem}
                   </p>
                   {alerta.subtitulo && (
-                    <p className="text-[11px] mt-1 leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.38)", marginTop: 4, margin: 0 }}>
                       {alerta.subtitulo}
                     </p>
                   )}
                 </div>
 
-                {/* Fechar */}
+                {/* fechar */}
                 <button
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setDescartados((prev) => new Set([...prev, originalIdx]));
                   }}
-                  className="flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center"
-                  style={{ background: "rgba(255,255,255,0.05)" }}
+                  style={{
+                    flexShrink: 0, width: 22, height: 22, borderRadius: 7,
+                    background: "rgba(255,255,255,0.05)", border: "none",
+                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
                 >
-                  <X size={11} style={{ color: "rgba(255,255,255,0.35)" }} />
+                  <X size={10} color="rgba(255,255,255,0.35)" />
                 </button>
               </div>
             </motion.div>
           );
 
           return alerta.href ? (
-            <Link key={originalIdx} href={alerta.href}>{inner}</Link>
+            <Link key={originalIdx} href={alerta.href} style={{ textDecoration: "none" }}>
+              {inner}
+            </Link>
           ) : (
             <div key={originalIdx}>{inner}</div>
           );
