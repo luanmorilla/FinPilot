@@ -71,7 +71,7 @@ export default function OnboardingPage() {
       })
       if (res.ok) {
         setStep(4)
-        setTimeout(() => router.push("/dashboard"), 2000)
+        setTimeout(() => router.push("/"), 2000)
       }
     } catch (e) {
       console.error(e)
@@ -201,7 +201,6 @@ export default function OnboardingPage() {
                 ))}
               </div>
 
-              {/* MENSAL — escolher dia do mês */}
               <AnimatePresence>
                 {selectedFrequencia === "MENSAL" && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mb-5">
@@ -217,7 +216,6 @@ export default function OnboardingPage() {
                   </motion.div>
                 )}
 
-                {/* SEMANAL — escolher dia da semana */}
                 {selectedFrequencia === "SEMANAL" && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mb-5">
                     <p className="text-slate-300 text-sm mb-3">Qual dia da semana você recebe?</p>
@@ -232,7 +230,6 @@ export default function OnboardingPage() {
                   </motion.div>
                 )}
 
-                {/* QUINZENAL / 2x por mês — escolher 2 dias */}
                 {(selectedFrequencia === "QUINZENAL" || selectedFrequencia === "DUAS_VEZES_MES") && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mb-5">
                     <p className="text-slate-300 text-sm mb-1">Escolha os 2 dias do mês que você recebe:</p>
@@ -250,7 +247,6 @@ export default function OnboardingPage() {
                   </motion.div>
                 )}
 
-                {/* PERSONALIZADO */}
                 {selectedFrequencia === "PERSONALIZADO" && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mb-5">
                     <p className="text-slate-300 text-sm mb-3">Selecione todos os dias que você recebe:</p>
@@ -285,7 +281,7 @@ export default function OnboardingPage() {
             </motion.div>
             <h2 className="text-3xl font-bold text-white mb-3">Tudo pronto! 🎉</h2>
             <p className="text-slate-400 text-lg mb-2">Perfil configurado com sucesso</p>
-            <p className="text-slate-500 text-sm">Redirecionando para o dashboard...</p>
+            <p className="text-slate-500 text-sm">Redirecionando para o início...</p>
             <Loader2 className="w-6 h-6 text-emerald-400 animate-spin mx-auto mt-6" />
           </motion.div>
         )}
