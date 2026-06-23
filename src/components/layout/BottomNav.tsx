@@ -25,27 +25,22 @@ function FinnButton() {
         whileTap={{ scale: 0.88 }}
         animate={{ y: isOpen ? 0 : [0, -4, 0] }}
         transition={{ duration: 2.5, repeat: isOpen ? 0 : Infinity, ease: "easeInOut" }}
-        className="relative -mt-10 flex items-center justify-center overflow-visible"
+        className="-mt-8"
         style={{
-          width: 68,
-          height: 68,
-          borderRadius: 34,
-          background: "linear-gradient(135deg, #7C4DFF, #3B82F6)",
-          boxShadow: isOpen
-            ? "0 0 0 3px rgba(124,77,255,0.5), 0 6px 28px rgba(124,77,255,0.7)"
-            : "0 6px 24px rgba(124,77,255,0.55)",
-          border: "3px solid rgba(255,255,255,0.12)",
+          filter: isOpen
+            ? "drop-shadow(0 0 12px rgba(124,77,255,0.9))"
+            : "drop-shadow(0 4px 12px rgba(124,77,255,0.6))",
         }}
       >
         <Image
           src="/images/finn-cabeca.png"
           alt="Finn"
-          width={90}
-          height={90}
-          className="object-contain absolute -top-3"
+          width={72}
+          height={72}
+          className="object-contain"
         />
       </motion.div>
-      <span className="text-[9px] text-purple-400 font-semibold mt-1.5">Finn</span>
+      <span className="text-[9px] text-purple-400 font-semibold mt-1">Finn</span>
     </button>
   )
 }
