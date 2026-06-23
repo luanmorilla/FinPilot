@@ -38,12 +38,13 @@ function FinnButton() {
         }}
       >
         <Image
-          src="/images/finn-cabeca.png"
-          alt="Finn"
-          width={52}
-          height={52}
-          className="object-contain"
-        />
+  src="/images/finn-cabeca.png"
+  alt="Finn"
+  width={72}
+  height={72}
+  className="object-cover"
+/>
+        
       </motion.div>
       <span className="text-[9px] text-purple-400 font-semibold mt-1.5">Finn</span>
     </button>
