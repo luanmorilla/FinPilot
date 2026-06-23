@@ -8,7 +8,7 @@ interface Vencimento {
   id: string;
   nome: string;
   valor: number;
-  dataVencimento: Date;
+  dataVencimento: Date | string;
   categoria: string;
 }
 
@@ -23,7 +23,7 @@ function formatBRL(value: number): string {
   }).format(value);
 }
 
-function getDiasRestantes(data: Date): number {
+function getDiasRestantes(data: Date | string): number {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
   const venc = new Date(data);
@@ -60,8 +60,8 @@ function getUrgenciaConfig(dias: number) {
     return {
       label: `${dias}d`,
       cor: "text-yellow-400",
-      bg: "bg-yellow-500/8",
-      borda: "border-yellow-500/15",
+      bg: "bg-yellow-500/10",
+      borda: "border-yellow-500/20",
       dot: "bg-yellow-400",
     };
   return {
@@ -74,7 +74,9 @@ function getUrgenciaConfig(dias: number) {
 }
 
 function getMensagemJarvis(vencimentos: Vencimento[]): string | null {
-  const urgentes = vencimentos.filter((v) => getDiasRestantes(v.dataVencimento) <= 3);
+  const urgentes = vencimentos.filter(
+    (v) => getDiasRestantes(v.dataVencimento) <= 3
+  );
   if (urgentes.length === 0) return null;
   if (urgentes.length === 1)
     return `Ei! ${urgentes[0].nome} vence em breve. Já separou o valor?`;
@@ -97,9 +99,8 @@ export default function ProximosVencimentos({
       transition={{ duration: 0.5, delay: 0.5 }}
       className="mx-5 mt-4"
     >
-      {/* Jarvis alert */}
       {mensagemJarvis && (
-        <div className="flex items-start gap-2.5 bg-amber-500/8 border border-amber-500/15 rounded-xl p-3 mb-3">
+        <div className="flex items-start gap-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 mb-3">
           <AlertCircle size={14} className="text-amber-400 mt-0.5 flex-shrink-0" />
           <p className="text-xs text-amber-200 leading-relaxed">{mensagemJarvis}</p>
         </div>
@@ -144,12 +145,8 @@ export default function ProximosVencimentos({
                   <div
                     className={`flex items-center gap-3 rounded-xl border ${urg.borda} ${urg.bg} p-3.5 active:scale-[0.98] transition-transform`}
                   >
-                    {/* dot */}
-                    <div
-                      className={`w-2 h-2 rounded-full flex-shrink-0 ${urg.dot}`}
-                    />
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${urg.dot}`} />
 
-                    {/* info */}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">
                         {item.nome}
@@ -159,7 +156,6 @@ export default function ProximosVencimentos({
                       </p>
                     </div>
 
-                    {/* value + days */}
                     <div className="text-right flex-shrink-0">
                       <p className="text-sm font-semibold text-white">
                         {formatBRL(item.valor)}

@@ -1,14 +1,15 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { Plus, Target, PiggyBank } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Plus, Target, PiggyBank } from "lucide-react";
+import { useState } from "react";
 
 interface SaudoCardProps {
-  saudeFinanceira: "otima" | "boa" | "atencao" | "critica"
-  mensagem: string
-  detalhe?: string
+  saudeFinanceira: "otima" | "boa" | "atencao" | "critica";
+  mensagem: string;
+  detalhe?: string;
 }
 
 const saudeConfig = {
@@ -16,10 +17,11 @@ const saudeConfig = {
   boa:     { label: "Boa 💪",       color: "text-blue-400",    border: "rgba(96,165,250,0.2)" },
   atencao: { label: "Atenção ⚠️",  color: "text-amber-400",   border: "rgba(251,191,36,0.2)" },
   critica: { label: "Crítica 🚨",   color: "text-red-400",     border: "rgba(248,113,113,0.2)" },
-}
+};
 
 export default function SaudoCard({ saudeFinanceira, mensagem, detalhe }: SaudoCardProps) {
-  const config = saudeConfig[saudeFinanceira]
+  const config = saudeConfig[saudeFinanceira];
+  const [imgError, setImgError] = useState(false);
 
   return (
     <motion.div
@@ -36,14 +38,12 @@ export default function SaudoCard({ saudeFinanceira, mensagem, detalhe }: SaudoC
           boxShadow: "0 8px 32px rgba(109, 40, 217, 0.15)",
         }}
       >
-        {/* Glow de fundo */}
         <div
           className="absolute -top-10 -right-10 w-48 h-48 rounded-full pointer-events-none"
           style={{ background: "radial-gradient(circle, rgba(109,40,217,0.15) 0%, transparent 70%)" }}
         />
 
         <div className="flex items-start justify-between">
-          {/* Texto esquerdo */}
           <div className="flex-1 pr-4">
             <p className="text-xs font-semibold text-purple-400 uppercase tracking-wider mb-1">
               Olá, eu sou Finn 👋
@@ -61,7 +61,6 @@ export default function SaudoCard({ saudeFinanceira, mensagem, detalhe }: SaudoC
             )}
           </div>
 
-          {/* Finn corpo flutuando */}
           <motion.div
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -71,18 +70,24 @@ export default function SaudoCard({ saudeFinanceira, mensagem, detalhe }: SaudoC
               className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-3 rounded-full"
               style={{ background: "radial-gradient(ellipse, rgba(109,40,217,0.4) 0%, transparent 70%)" }}
             />
-            <Image
-              src="/images/finn-corpo.png"
-              alt="Finn"
-              width={110}
-              height={110}
-              className="object-contain drop-shadow-2xl"
-              priority
-            />
+            {!imgError ? (
+              <Image
+                src="/images/finn-corpo.png"
+                alt="Finn"
+                width={110}
+                height={110}
+                className="object-contain drop-shadow-2xl"
+                priority
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <div className="w-[110px] h-[110px] flex items-center justify-center text-5xl">
+                🤖
+              </div>
+            )}
           </motion.div>
         </div>
 
-        {/* Botões de ação rápida */}
         <div className="grid grid-cols-3 gap-2 mt-4 pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           <Link href="/dividas">
             <motion.div
@@ -125,5 +130,5 @@ export default function SaudoCard({ saudeFinanceira, mensagem, detalhe }: SaudoC
         </div>
       </div>
     </motion.div>
-  )
+  );
 }

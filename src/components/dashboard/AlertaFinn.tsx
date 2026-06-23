@@ -23,14 +23,16 @@ export default function AlertaFinn({ alertas }: AlertaFinnProps) {
   if (visiveis.length === 0) return null;
 
   return (
-    <div style={{ margin: "12px 16px 0", display: "flex", flexDirection: "column", gap: 10 }}>
+    <div
+      suppressHydrationWarning
+      style={{ margin: "12px 16px 0", display: "flex", flexDirection: "column", gap: 10 }}
+    >
       <AnimatePresence>
         {visiveis.map((alerta, idx) => {
           const originalIdx = alertas.indexOf(alerta);
 
           const isVencida = alerta.tipo === "vencida";
           const isHoje = alerta.tipo === "vencendo_hoje" || alerta.tipo === "urgente";
-          const isPagamento = alerta.tipo === "pagamento_amanha";
 
           const bg = isVencida
             ? "linear-gradient(135deg, rgba(220,38,38,0.16) 0%, rgba(120,10,10,0.10) 100%)"
@@ -78,7 +80,6 @@ export default function AlertaFinn({ alertas }: AlertaFinnProps) {
                 boxShadow: `0 2px 16px rgba(0,0,0,0.25)`,
               }}
             >
-              {/* glow */}
               <div style={{
                 position: "absolute", top: -24, right: -24,
                 width: 80, height: 80, borderRadius: "50%", pointerEvents: "none",
@@ -86,7 +87,6 @@ export default function AlertaFinn({ alertas }: AlertaFinnProps) {
               }} />
 
               <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                {/* ícone */}
                 <div style={{
                   flexShrink: 0, width: 34, height: 34, borderRadius: 10,
                   background: iconBg, color: iconColor,
@@ -95,13 +95,12 @@ export default function AlertaFinn({ alertas }: AlertaFinnProps) {
                   <Icon size={14} color={iconColor} />
                 </div>
 
-                {/* texto */}
                 <div style={{ flex: 1, minWidth: 0, paddingRight: 6 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                     <span style={{
                       width: 6, height: 6, borderRadius: "50%",
                       background: dotColor, flexShrink: 0,
-                      animation: pulsa ? "pulse 2s infinite" : undefined,
+                      ...(pulsa ? { animation: "pulse 2s infinite" } : {}),
                     }} />
                     <p style={{
                       fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
@@ -120,7 +119,6 @@ export default function AlertaFinn({ alertas }: AlertaFinnProps) {
                   )}
                 </div>
 
-                {/* fechar */}
                 <button
                   onClick={(e) => {
                     e.preventDefault();
