@@ -25,7 +25,7 @@ function FinnButton() {
         whileTap={{ scale: 0.88 }}
         animate={{ y: isOpen ? 0 : [0, -4, 0] }}
         transition={{ duration: 2.5, repeat: isOpen ? 0 : Infinity, ease: "easeInOut" }}
-        className="relative -mt-10 flex items-center justify-center"
+        className="relative -mt-10 flex items-center justify-center overflow-visible"
         style={{
           width: 68,
           height: 68,
@@ -38,13 +38,12 @@ function FinnButton() {
         }}
       >
         <Image
-  src="/images/finn-cabeca.png"
-  alt="Finn"
-  width={72}
-  height={72}
-  className="object-cover"
-/>
-        
+          src="/images/finn-cabeca.png"
+          alt="Finn"
+          width={90}
+          height={90}
+          className="object-contain absolute -top-3"
+        />
       </motion.div>
       <span className="text-[9px] text-purple-400 font-semibold mt-1.5">Finn</span>
     </button>
